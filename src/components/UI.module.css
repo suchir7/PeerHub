@@ -1,0 +1,116 @@
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.badge::before { content: '●'; font-size: .5rem; }
+.done     { background: #EAF5EE; color: #2A7A45; }
+.progress { background: #EAF0FA; color: #2655A6; }
+.pending  { background: var(--orange-tint); color: var(--orange); }
+
+/* Progress bar */
+.pbTrack {
+  height: 5px;
+  background: var(--rule);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.pbFill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--orange), var(--orange-soft));
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.pbDone { background: linear-gradient(90deg, #3AA060, #5CC47E); }
+
+/* Stat card */
+.statCard {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--rule);
+  padding: 20px 18px;
+  box-shadow: var(--shadow-xs);
+  transition: transform .2s, box-shadow .2s;
+}
+.statCard:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+
+.statChip {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem;
+  margin-bottom: 14px;
+}
+.chipOrange { background: var(--orange-tint); }
+.chipGreen  { background: #EAF5EE; }
+.chipBlue   { background: #EAF0FA; }
+.chipYellow { background: #FAF5EA; }
+
+.statValue {
+  font-family: var(--display);
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.statLabel  { font-size: .73rem; font-weight: 600; color: var(--ink-40); letter-spacing: .03em; }
+.statNote   { font-size: .71rem; font-weight: 500; color: var(--orange); margin-top: 6px; }
+
+/* Card */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+.cardHeader {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cardTitle {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.cardAction {
+  font-size: .74rem;
+  font-weight: 700;
+  color: var(--orange);
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.cardAction:hover { opacity: .65; }
+
+/* Avatar */
+.avatar {
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+  letter-spacing: .01em;
+}
+
+/* Stars */
+.stars { display: flex; gap: 3px; }
+.starBtn {
+  font-size: 1.05rem;
+  background: none;
+  border: none;
+  padding: 0 1px;
+  transition: transform .12s;
+  cursor: pointer;
+  line-height: 1;
+}
+.starBtn:hover { transform: scale(1.28); }

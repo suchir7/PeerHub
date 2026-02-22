@@ -1,0 +1,49 @@
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--rule);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all .22s;
+  box-shadow: var(--shadow-xs);
+}
+.card:hover { border-color: var(--orange); transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+.cardTop {
+  padding: 22px 24px 18px;
+  color: white;
+  position: relative; overflow: hidden;
+}
+.cardTop::before {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.12);
+}
+
+.cardNum {
+  font-family: var(--display);
+  font-size: .78rem; font-weight: 700;
+  color: rgba(255,255,255,.65);
+  letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.cardName {
+  font-family: var(--display);
+  font-size: 1.15rem; font-weight: 900;
+  margin-bottom: 4px; line-height: 1.3;
+}
+.cardDesc { font-size: .74rem; color: rgba(255,255,255,.6); font-weight: 300; }
+
+.cardBody { padding: 18px 22px 22px; }
+
+.statsRow { display: flex; gap: 22px; margin-bottom: 16px; }
+.stat {}
+.statVal { font-family: var(--display); font-size: 1.5rem; font-weight: 900; color: var(--orange); line-height: 1; }
+.statLbl { font-size: .66rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-40); margin-top: 3px; }
+
+.footer { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.due { font-size: .74rem; color: var(--ink-40); font-weight: 500; }

@@ -1,0 +1,8 @@
+.body { padding: 4px 22px 22px; }
+.row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--rule);
+}
+.row:last-child { border-bottom: none; }
+.key { font-size: .86rem; font-weight: 600; color: var(--ink); }
+.val { font-size: .84rem; color: var(--ink-40); font-weight: 400; }

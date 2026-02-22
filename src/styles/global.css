@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --orange:       #E8622A;
+  --orange-soft:  #F28155;
+  --orange-tint:  #FDF2EC;
+  --orange-mist:  #FAE3D7;
+  --cream:        #FDFCFA;
+  --white:        #FFFFFF;
+  --ink:          #1A1714;
+  --ink-70:       rgba(26,23,20,.70);
+  --ink-40:       rgba(26,23,20,.40);
+  --ink-12:       rgba(26,23,20,.12);
+  --ink-06:       rgba(26,23,20,.06);
+  --rule:         rgba(26,23,20,.09);
+  --green:        #2A7A45;
+  --green-tint:   #EAF5EE;
+  --blue:         #2655A6;
+  --blue-tint:    #EAF0FA;
+  --yellow:       #D97706;
+  --yellow-tint:  #FAF5EA;
+  --shadow-xs:    0 1px 4px rgba(26,23,20,.06);
+  --shadow-sm:    0 2px 12px rgba(26,23,20,.07);
+  --shadow-md:    0 6px 28px rgba(26,23,20,.10);
+  --shadow-or:    0 8px 32px rgba(232,98,42,.22);
+  --radius:       14px;
+  --display:      'Playfair Display', Georgia, serif;
+  --body:         'Plus Jakarta Sans', sans-serif;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+button { font-family: var(--body); cursor: pointer; }
+input, select, textarea { font-family: var(--body); }
+a { text-decoration: none; color: inherit; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.page-enter { animation: fadeUp .42s cubic-bezier(.22,1,.36,1) both; }
+.fade-in    { animation: fadeIn .3s ease both; }

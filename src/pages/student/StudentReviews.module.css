@@ -1,0 +1,31 @@
+.list { display: flex; flex-direction: column; gap: 14px; }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-xs);
+  padding: 24px 28px;
+  display: flex; gap: 22px; align-items: flex-start;
+  transition: box-shadow .2s;
+}
+.card:hover { box-shadow: var(--shadow-sm); }
+
+.scoreRing {
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  border: 2px solid var(--orange-mist);
+  background: var(--orange-tint);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.scoreVal { font-family: var(--display); font-size: 1.4rem; font-weight: 900; color: var(--orange); line-height: 1; }
+.scoreLbl { font-size: .55rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--orange); opacity: .6; margin-top: 2px; }
+
+.body { flex: 1; }
+.top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.name { font-size: .95rem; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.proj { font-size: .75rem; color: var(--ink-40); font-weight: 400; }
+.stars { font-size: .8rem; color: #D97706; letter-spacing: .04em; margin-bottom: 10px; }
+.comment { font-size: .84rem; color: var(--ink-70); line-height: 1.7; font-weight: 300; }

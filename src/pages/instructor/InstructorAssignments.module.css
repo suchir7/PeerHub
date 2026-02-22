@@ -1,0 +1,70 @@
+.pageHead {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 22px;
+}
+.pageTitle { font-family: var(--display); font-size: 1.4rem; font-weight: 900; color: var(--ink); letter-spacing: -.01em; }
+.pageSub   { font-size: .78rem; color: var(--ink-40); margin-top: 3px; font-weight: 400; }
+
+.addBtn {
+  padding: 10px 20px; background: var(--orange); color: white;
+  border: none; border-radius: 9px;
+  font-size: .84rem; font-weight: 700; letter-spacing: .03em;
+  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; gap: 7px;
+}
+.addBtn:hover { background: var(--orange-soft); transform: translateY(-1px); box-shadow: var(--shadow-or); }
+
+.tableWrap { padding: 6px 22px 22px; overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table th { font-size: .64rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-40); font-weight: 700; padding: 0 0 12px; text-align: left; }
+.table td { padding: 12px 0; border-top: 1px solid var(--rule); font-size: .855rem; vertical-align: middle; }
+.table tr:hover td { background: var(--cream); }
+.tdBold  { font-weight: 700; }
+.tdMuted { color: var(--ink-70); }
+
+/* Modal */
+.overlay {
+  position: fixed; inset: 0; background: rgba(26,23,20,.35);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(6px);
+  animation: fadeIn .2s ease;
+}
+.modal {
+  background: var(--white); border-radius: 18px;
+  padding: 32px; width: 480px; max-width: 96vw;
+  box-shadow: 0 24px 60px rgba(26,23,20,.14);
+  animation: fadeUp .3s ease;
+}
+.modalTitle { font-family: var(--display); font-size: 1.35rem; font-weight: 900; color: var(--ink); margin-bottom: 24px; letter-spacing: -.01em; }
+
+.mField { margin-bottom: 16px; }
+.mLabel { display: block; font-size: .67rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-40); margin-bottom: 8px; }
+.mCtrl {
+  width: 100%; padding: 11px 13px;
+  border: 1.5px solid var(--rule); border-radius: 9px;
+  background: var(--cream); font-size: .86rem; color: var(--ink);
+  outline: none; transition: all .2s;
+}
+.mCtrl:focus { border-color: var(--orange); background: var(--white); box-shadow: 0 0 0 3px rgba(232,98,42,.07); }
+
+.mErr {
+  padding: 10px 13px; background: #FEF2F2;
+  border: 1px solid #FECACA; border-radius: 8px;
+  font-size: .8rem; font-weight: 500; color: #DC2626;
+  margin-bottom: 14px;
+}
+
+.mActions { display: flex; gap: 9px; justify-content: flex-end; margin-top: 22px; }
+.mCancel {
+  padding: 10px 18px; background: transparent; color: var(--ink-70);
+  border: 1.5px solid var(--rule); border-radius: 9px;
+  font-size: .84rem; font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.mCancel:hover { border-color: var(--orange); color: var(--orange); }
+.mCreate {
+  padding: 10px 22px; background: var(--orange); color: white;
+  border: none; border-radius: 9px;
+  font-size: .84rem; font-weight: 700; letter-spacing: .03em;
+  cursor: pointer; transition: all .2s;
+}
+.mCreate:hover { background: var(--orange-soft); transform: translateY(-1px); }

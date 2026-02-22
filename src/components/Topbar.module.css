@@ -1,0 +1,59 @@
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 40px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: var(--shadow-xs);
+}
+
+.title {
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: .01em;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.date {
+  font-size: .75rem;
+  color: var(--ink-40);
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+.notifBtn {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  border: 1.5px solid var(--rule);
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: .95rem;
+  position: relative;
+  transition: all .17s;
+}
+.notifBtn:hover {
+  border-color: var(--orange);
+  background: var(--orange-tint);
+}
+
+.notifDot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--orange);
+  border: 1.5px solid var(--white);
+}

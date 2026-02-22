@@ -1,0 +1,49 @@
+.banner {
+  background: var(--ink);
+  border-radius: var(--radius);
+  padding: 32px 40px;
+  margin-bottom: 26px;
+  position: relative; overflow: hidden; color: white;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.banner::before {
+  content: ''; position: absolute;
+  width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,98,42,.18) 0%, transparent 65%);
+  top: -120px; right: -80px; pointer-events: none;
+}
+.bannerContent { position: relative; z-index: 1; }
+.bannerEye { font-size: .68rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
+.bannerName { font-family: var(--display); font-size: 2.2rem; font-weight: 900; line-height: 1.1; letter-spacing: -.01em; margin-bottom: 8px; }
+.bannerSub { font-size: .84rem; color: rgba(255,255,255,.4); font-weight: 300; }
+.bannerDecor { font-size: 5rem; opacity: .08; position: relative; z-index: 1; }
+
+.statsRow { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+
+.grid { display: grid; grid-template-columns: 1.65fr 1fr; gap: 18px; }
+
+.tableWrap { padding: 8px 22px 22px; overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table th {
+  font-size: .64rem; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--ink-40); font-weight: 700; padding: 0 0 12px; text-align: left;
+}
+.table td { padding: 11px 0; border-top: 1px solid var(--rule); font-size: .85rem; vertical-align: middle; }
+.table tr:hover td { background: var(--cream); }
+.tdName  { font-weight: 700; }
+.tdMuted { color: var(--ink-40); }
+
+.leaderBody { padding: 12px 22px 20px; }
+.leaderRow { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); }
+.leaderRow:last-child { border-bottom: none; }
+
+.rank {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: .9rem; font-weight: 900;
+  flex-shrink: 0;
+}
+.leaderInfo { flex: 1; }
+.leaderName { font-size: .85rem; font-weight: 700; color: var(--ink); }
+.leaderTeam { font-size: .71rem; color: var(--ink-40); margin-top: 1px; }
+.leaderScore { font-family: var(--display); font-size: 1.2rem; font-weight: 900; color: var(--orange); }

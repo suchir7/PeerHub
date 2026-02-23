@@ -61,23 +61,3 @@ peerhub/
             └── InstructorSettings.jsx # Course settings
 ```
 
-## 🔗 Connecting to Spring Boot
-
-Replace mock data in `src/data/mockData.js` with real API calls:
-
-```js
-// Example: fetch projects from Spring Boot
-const res = await fetch('http://localhost:8080/api/projects', {
-  headers: { Authorization: `Bearer ${token}` }
-});
-const projects = await res.json();
-```
-
-Update `AuthContext.jsx` to POST to `/api/auth/login` and store the JWT token.
-
-## 🎨 Design
-
-- **Fonts:** Playfair Display (headings) + Plus Jakarta Sans (body)
-- **Colors:** White/cream base · `#E8622A` orange accent · Ink `#1A1714`
-- **Student portal:** Light sidebar
-- **Instructor portal:** Dark charcoal sidebar

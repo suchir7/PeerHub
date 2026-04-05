@@ -27,7 +27,7 @@ export default function Sidebar({ navItems, variant = 'light' }) {
         <div>
           <div className={styles.userName}>{user?.name}</div>
           <div className={styles.userRole}>
-            {variant === 'dark' ? '👨‍🏫 Instructor' : '🎓 Student'}
+            {variant === 'dark' ? 'Instructor' : 'Student'}
           </div>
         </div>
       </div>

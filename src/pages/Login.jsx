@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { IconGraduationCap, IconUserCheck } from '../components/Icons';
 import styles from './Login.module.css';
 
 export default function Login() {
@@ -13,8 +14,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise(r => setTimeout(r, 600)); // simulate network
-    const role = login(email, password);
+    const role = await login(email, password);
     setLoading(false);
     if (role === 'student')    navigate('/student/dashboard');
     if (role === 'instructor') navigate('/instructor/overview');
@@ -71,8 +71,12 @@ export default function Login() {
           {/* Demo quick-fill */}
           <div className={styles.demoRow}>
             <span className={styles.demoLabel}>Quick demo:</span>
-            <button className={styles.demoBtn} type="button" onClick={() => fillDemo('student')}>🎓 Student</button>
-            <button className={styles.demoBtn} type="button" onClick={() => fillDemo('instructor')}>👨‍🏫 Instructor</button>
+            <button className={styles.demoBtn} type="button" onClick={() => fillDemo('student')}>
+              <IconGraduationCap size={14} /> Student
+            </button>
+            <button className={styles.demoBtn} type="button" onClick={() => fillDemo('instructor')}>
+              <IconUserCheck size={14} /> Instructor
+            </button>
           </div>
 
           <form onSubmit={handleSubmit} className={styles.form}>

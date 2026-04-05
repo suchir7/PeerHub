@@ -1,25 +1,77 @@
+import { useState, useEffect } from 'react';
+import { apiGetSettings, apiUpdateSettings } from '../../api/client';
 import { Card, CardHeader } from '../../components/UI';
 import styles from './InstructorSettings.module.css';
 
-const SETTINGS = [
-  { key: 'Course Name',              value: 'FSAD-PS26 — Full Stack Application Development' },
-  { key: 'Semester',                 value: 'Spring 2025' },
-  { key: 'Review Deadline Buffer',   value: '3 days after submission' },
-  { key: 'Anonymous Reviews',        value: 'Enabled' },
-  { key: 'Max Reviews per Student',  value: '3' },
-  { key: 'Grading Visibility',       value: 'Instructor only until deadline' },
+const SETTING_KEYS = [
+  { key: 'courseName',            label: 'Course Name' },
+  { key: 'semester',              label: 'Semester' },
+  { key: 'reviewDeadlineBuffer',  label: 'Review Deadline Buffer' },
+  { key: 'anonymousReviews',      label: 'Anonymous Reviews' },
+  { key: 'maxReviewsPerStudent',  label: 'Max Reviews per Student' },
+  { key: 'gradingVisibility',     label: 'Grading Visibility' },
 ];
 
 export default function InstructorSettings() {
+  const [settings, setSettings] = useState({});
+  const [editing, setEditing]   = useState(null);
+  const [editVal, setEditVal]   = useState('');
+  const [saving, setSaving]     = useState(false);
+
+  useEffect(() => {
+    apiGetSettings().then(setSettings).catch(console.error);
+  }, []);
+
+  const startEdit = (key, value) => {
+    setEditing(key);
+    setEditVal(value);
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      const updated = await apiUpdateSettings({ [editing]: editVal });
+      setSettings(updated);
+      setEditing(null);
+    } catch (err) {
+      console.error('Save error:', err);
+    }
+    setSaving(false);
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setEditVal('');
+  };
+
   return (
     <div className="page-enter">
       <Card>
         <CardHeader title="Course Settings" />
         <div className={styles.body}>
-          {SETTINGS.map(s => (
+          {SETTING_KEYS.map(s => (
             <div key={s.key} className={styles.row}>
-              <div className={styles.key}>{s.key}</div>
-              <div className={styles.val}>{s.value}</div>
+              <div className={styles.key}>{s.label}</div>
+              {editing === s.key ? (
+                <div className={styles.editRow}>
+                  <input
+                    className={styles.editInput}
+                    value={editVal}
+                    onChange={e => setEditVal(e.target.value)}
+                    autoFocus
+                  />
+                  <button className={styles.saveBtn} onClick={saveEdit} disabled={saving}>
+                    {saving ? '...' : 'Save'}
+                  </button>
+                  <button className={styles.cancelBtn} onClick={cancelEdit}>Cancel</button>
+                </div>
+              ) : (
+                <div className={styles.val} onClick={() => startEdit(s.key, settings[s.key] || '')}>
+                  {settings[s.key] || '—'}
+                  <span className={styles.editHint}>click to edit</span>
+                </div>
+              )}
             </div>
           ))}
         </div>

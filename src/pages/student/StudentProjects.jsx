@@ -1,4 +1,5 @@
-import { PROJECTS } from '../../data/mockData';
+import { useState, useEffect } from 'react';
+import { apiGetProjects } from '../../api/client';
 import { StatusBadge, ProgressBar } from '../../components/UI';
 import styles from './StudentProjects.module.css';
 
@@ -6,14 +7,20 @@ const COLORS = ['#E8622A','#2655A6','#2A7A45','#7C3AED'];
 const SOFT    = ['#FF9A6C','#60A5FA','#4ADE80','#A78BFA'];
 
 export default function StudentProjects() {
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    apiGetProjects().then(setProjects).catch(console.error);
+  }, []);
+
   return (
     <div className="page-enter">
       <div className={styles.grid}>
-        {PROJECTS.map((p, i) => (
+        {projects.map((p, i) => (
           <div key={p.id} className={styles.card}>
             <div
               className={styles.cardTop}
-              style={{ background: `linear-gradient(135deg, ${COLORS[i]} 0%, ${SOFT[i]} 100%)` }}
+              style={{ background: `linear-gradient(135deg, ${COLORS[i % COLORS.length]} 0%, ${SOFT[i % SOFT.length]} 100%)` }}
             >
               <div className={styles.cardNum}>Project {String(i + 1).padStart(2, '0')}</div>
               <div className={styles.cardName}>{p.name}</div>

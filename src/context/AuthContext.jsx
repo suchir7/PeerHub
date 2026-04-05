@@ -1,31 +1,48 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { apiLogin, apiGetMe, apiLogout } from '../api/client';
 
 const AuthContext = createContext(null);
-
-// Mock credentials
-const USERS = [
-  { email: 'alex@university.edu',     password: 'student123', role: 'student',    name: 'Alex Martinez',  initials: 'AM' },
-  { email: 'priya@university.edu',    password: 'student123', role: 'student',    name: 'Priya Sharma',   initials: 'PS' },
-  { email: 'prof.rivera@university.edu', password: 'teach123', role: 'instructor', name: 'Prof. Rivera',   initials: 'PR' },
-];
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const login = (email, password) => {
-    const found = USERS.find(u => u.email === email && u.password === password);
-    if (found) {
-      setUser(found);
-      setError('');
-      return found.role;
+  // On mount, check if there's a saved token
+  useEffect(() => {
+    const token = localStorage.getItem('peerhub_token');
+    if (token) {
+      apiGetMe()
+        .then(data => setUser(data.user))
+        .catch(() => {
+          localStorage.removeItem('peerhub_token');
+        })
+        .finally(() => setLoading(false));
     } else {
-      setError('Invalid email or password. Please try again.');
+      setLoading(false);
+    }
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const data = await apiLogin(email, password);
+      setUser(data.user);
+      setError('');
+      return data.user.role;
+    } catch (err) {
+      setError(err.message || 'Invalid email or password. Please try again.');
       return null;
     }
   };
 
-  const logout = () => setUser(null);
+  const logout = () => {
+    apiLogout();
+    setUser(null);
+  };
+
+  if (loading) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout, error, setError }}>

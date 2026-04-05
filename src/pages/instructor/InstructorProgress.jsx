@@ -1,4 +1,5 @@
-import { STUDENTS } from '../../data/mockData';
+import { useState, useEffect } from 'react';
+import { apiGetStudents } from '../../api/client';
 import { Card, ProgressBar, Avatar } from '../../components/UI';
 import styles from './InstructorProgress.module.css';
 
@@ -6,6 +7,12 @@ const RANK_COLORS = ['#E8622A','#D97706','#6366F1','rgba(26,23,20,.1)','rgba(26,
 const RANK_TEXT   = ['#fff',   '#fff',   '#fff',   'rgba(26,23,20,.4)','rgba(26,23,20,.4)'];
 
 export default function InstructorProgress() {
+  const [students, setStudents] = useState([]);
+
+  useEffect(() => {
+    apiGetStudents().then(setStudents).catch(console.error);
+  }, []);
+
   return (
     <div className="page-enter">
       <Card>
@@ -23,7 +30,7 @@ export default function InstructorProgress() {
               </tr>
             </thead>
             <tbody>
-              {STUDENTS.map((s, i) => (
+              {students.map((s, i) => (
                 <tr key={s.name}>
                   <td>
                     <div className={styles.rank} style={{ background: RANK_COLORS[i], color: RANK_TEXT[i] }}>

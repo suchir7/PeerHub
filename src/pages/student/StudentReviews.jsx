@@ -1,12 +1,19 @@
-import { REVIEWS_RECEIVED } from '../../data/mockData';
+import { useState, useEffect } from 'react';
+import { apiGetReviews } from '../../api/client';
 import { Avatar } from '../../components/UI';
 import styles from './StudentReviews.module.css';
 
 export default function StudentReviews() {
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    apiGetReviews().then(setReviews).catch(console.error);
+  }, []);
+
   return (
     <div className="page-enter">
       <div className={styles.list}>
-        {REVIEWS_RECEIVED.map(r => (
+        {reviews.map(r => (
           <div key={r.id} className={styles.card}>
             <div className={styles.scoreRing}>
               <div className={styles.scoreVal}>{r.score}</div>

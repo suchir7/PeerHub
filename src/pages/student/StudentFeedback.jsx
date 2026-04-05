@@ -1,22 +1,39 @@
-import { useState } from 'react';
-import { PENDING_REVIEWS } from '../../data/mockData';
+import { useState, useEffect } from 'react';
+import { apiGetPendingReviews, apiSubmitReview } from '../../api/client';
 import { Card, CardHeader, StarRating } from '../../components/UI';
+import { IconClipboard } from '../../components/Icons';
 import styles from './StudentFeedback.module.css';
 
 const CRITERIA = ['Code Quality', 'Documentation', 'Teamwork', 'Innovation'];
 
 export default function StudentFeedback() {
-  const [ratings, setRatings]   = useState(Object.fromEntries(CRITERIA.map(c => [c, 0])));
-  const [comment, setComment]   = useState('');
-  const [score, setScore]       = useState('');
-  const [project, setProject]   = useState(PENDING_REVIEWS[0].title);
-  const [submitted, setSubmitted] = useState(false);
+  const [ratings, setRatings]       = useState(Object.fromEntries(CRITERIA.map(c => [c, 0])));
+  const [comment, setComment]       = useState('');
+  const [score, setScore]           = useState('');
+  const [pending, setPending]       = useState([]);
+  const [project, setProject]       = useState('');
+  const [submitted, setSubmitted]   = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const canSubmit = comment.trim() && score && Object.values(ratings).every(v => v > 0);
+  useEffect(() => {
+    apiGetPendingReviews().then(data => {
+      setPending(data);
+      if (data.length > 0) setProject(data[0].title);
+    }).catch(console.error);
+  }, []);
 
-  const handleSubmit = () => {
+  const canSubmit = comment.trim() && score && Object.values(ratings).every(v => v > 0) && !submitting;
+
+  const handleSubmit = async () => {
     if (!canSubmit) return;
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      await apiSubmitReview({ project, score, comment, ratings });
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Submit error:', err);
+    }
+    setSubmitting(false);
   };
 
   const reset = () => {
@@ -53,7 +70,7 @@ export default function StudentFeedback() {
             <div className={styles.field}>
               <label className={styles.label}>Project</label>
               <select className={styles.ctrl} value={project} onChange={e => setProject(e.target.value)}>
-                {PENDING_REVIEWS.map(p => <option key={p.id}>{p.title}</option>)}
+                {pending.map(p => <option key={p.id}>{p.title}</option>)}
               </select>
             </div>
 
@@ -83,9 +100,9 @@ export default function StudentFeedback() {
               onClick={handleSubmit}
               disabled={!canSubmit}
             >
-              Submit Review →
+              {submitting ? 'Submitting...' : 'Submit Review →'}
             </button>
-            {!canSubmit && <p className={styles.hint}>Fill in all fields and rate all criteria to submit.</p>}
+            {!canSubmit && !submitting && <p className={styles.hint}>Fill in all fields and rate all criteria to submit.</p>}
           </div>
         </Card>
 
@@ -109,9 +126,9 @@ export default function StudentFeedback() {
           <Card>
             <CardHeader title="Pending Assignments" />
             <div className={styles.body}>
-              {PENDING_REVIEWS.map(p => (
+              {pending.map(p => (
                 <div key={p.id} className={styles.assignRow}>
-                  <div className={styles.assignIcon}>📋</div>
+                  <div className={styles.assignIcon}><IconClipboard size={16} color="var(--orange)" /></div>
                   <div>
                     <div className={styles.assignTitle}>{p.title}</div>
                     <div className={styles.assignDue}>{p.due}</div>

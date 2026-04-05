@@ -1,3 +1,4 @@
+import { IconBell } from './Icons';
 import styles from './Topbar.module.css';
 
 export default function Topbar({ title }) {
@@ -9,7 +10,7 @@ export default function Topbar({ title }) {
       <div className={styles.right}>
         <span className={styles.date}>{today}</span>
         <div className={styles.notifBtn}>
-          🔔
+          <IconBell size={18} />
           <span className={styles.notifDot} />
         </div>
       </div>

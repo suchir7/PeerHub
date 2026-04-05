@@ -1,1 +1,17 @@
 node_modules/
+# Eclipse metadata
+peerhub-backend/.metadata/
+peerhub-backend/.classpath
+peerhub-backend/.project
+peerhub-backend/.settings/
+
+# Maven build output
+peerhub-backend/target/
+
+# Node
+node_modules/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db

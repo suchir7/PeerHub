@@ -1,13 +1,14 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import Topbar from '../../components/Topbar';
+import { IconDashboard, IconFolder, IconStar, IconMessageSquare } from '../../components/Icons';
 import styles from './StudentLayout.module.css';
 
 const NAV = [
-  { path: '/student/dashboard', label: 'Dashboard',        icon: '⊞' },
-  { path: '/student/projects',  label: 'My Projects',      icon: '📁' },
-  { path: '/student/reviews',   label: 'Reviews Received', icon: '⭐', badge: 3 },
-  { path: '/student/feedback',  label: 'Give Feedback',    icon: '💬', badge: 2 },
+  { path: '/student/dashboard', label: 'Dashboard',        icon: <IconDashboard size={16} /> },
+  { path: '/student/projects',  label: 'My Projects',      icon: <IconFolder size={16} /> },
+  { path: '/student/reviews',   label: 'Reviews Received', icon: <IconStar size={16} />, badge: 3 },
+  { path: '/student/feedback',  label: 'Give Feedback',    icon: <IconMessageSquare size={16} />, badge: 2 },
 ];
 
 const TITLES = {

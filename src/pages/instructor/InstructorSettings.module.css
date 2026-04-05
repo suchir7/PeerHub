@@ -1,8 +1,95 @@
-.body { padding: 4px 22px 22px; }
+.body {
+  padding: 8px 24px 24px;
+}
+
 .row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 0; border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
 }
 .row:last-child { border-bottom: none; }
-.key { font-size: .86rem; font-weight: 600; color: var(--ink); }
-.val { font-size: .84rem; color: var(--ink-40); font-weight: 400; }
+
+.key {
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--ink-70);
+  min-width: 200px;
+}
+
+.val {
+  font-size: .84rem;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background .15s;
+}
+.val:hover {
+  background: var(--ink-06);
+}
+
+.editHint {
+  font-size: .68rem;
+  color: var(--ink-40);
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.val:hover .editHint {
+  opacity: 1;
+}
+
+.editRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editInput {
+  font-size: .84rem;
+  padding: 7px 12px;
+  border: 1.5px solid var(--orange);
+  border-radius: 8px;
+  outline: none;
+  min-width: 260px;
+  background: var(--white);
+  color: var(--ink);
+}
+.editInput:focus {
+  box-shadow: 0 0 0 3px rgba(232,98,42,.12);
+}
+
+.saveBtn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 7px;
+  background: var(--orange);
+  color: white;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.saveBtn:hover { background: var(--orange-soft); }
+.saveBtn:disabled { opacity: .6; cursor: not-allowed; }
+
+.cancelBtn {
+  padding: 6px 14px;
+  border: 1.5px solid var(--rule);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-70);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.cancelBtn:hover {
+  border-color: var(--ink-40);
+  color: var(--ink);
+}

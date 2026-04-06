@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'https://peerhub-backend-n6ib.onrender.com/api').replace(/\/$/, '');
 
 function getToken() {
   return localStorage.getItem('peerhub_token');
@@ -28,10 +28,28 @@ async function request(url, options = {}) {
 }
 
 // Auth
-export async function apiLogin(email, password) {
+export async function apiLogin(email, password, captchaToken) {
   const data = await request('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, captchaToken }),
+  });
+  localStorage.setItem('peerhub_token', data.token);
+  return data;
+}
+
+export async function apiSignup(signupData) {
+  const data = await request('/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify(signupData),
+  });
+  localStorage.setItem('peerhub_token', data.token);
+  return data;
+}
+
+export async function apiGoogleAuth(idToken, mode, role, captchaToken) {
+  const data = await request('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ idToken, mode, role, captchaToken }),
   });
   localStorage.setItem('peerhub_token', data.token);
   return data;

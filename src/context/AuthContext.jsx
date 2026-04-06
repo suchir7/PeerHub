@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { apiLogin, apiGetMe, apiLogout } from '../api/client';
+import { apiGoogleAuth, apiLogin, apiGetMe, apiLogout, apiSignup } from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -23,14 +23,38 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, captchaToken) => {
     try {
-      const data = await apiLogin(email, password);
+      const data = await apiLogin(email, password, captchaToken);
       setUser(data.user);
       setError('');
       return data.user.role;
     } catch (err) {
       setError(err.message || 'Invalid email or password. Please try again.');
+      return null;
+    }
+  };
+
+  const signup = async ({ name, email, password, role, captchaToken }) => {
+    try {
+      const data = await apiSignup({ name, email, password, role, captchaToken });
+      setUser(data.user);
+      setError('');
+      return data.user.role;
+    } catch (err) {
+      setError(err.message || 'Signup failed. Please try again.');
+      return null;
+    }
+  };
+
+  const loginWithGoogle = async ({ idToken, mode, role, captchaToken }) => {
+    try {
+      const data = await apiGoogleAuth(idToken, mode, role, captchaToken);
+      setUser(data.user);
+      setError('');
+      return data.user.role;
+    } catch (err) {
+      setError(err.message || 'Google sign-in failed. Please try again.');
       return null;
     }
   };
@@ -45,7 +69,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, error, setError }}>
+    <AuthContext.Provider value={{ user, login, signup, loginWithGoogle, logout, error, setError }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 import StudentLayout    from './pages/student/StudentLayout';
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -24,6 +25,7 @@ export default function App() {
         <Routes>
           {/* Public */}
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/"      element={<Navigate to="/login" replace />} />
 
           {/* Student */}

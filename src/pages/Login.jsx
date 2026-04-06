@@ -1,34 +1,67 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
-import { IconGraduationCap, IconUserCheck } from '../components/Icons';
 import styles from './Login.module.css';
+import ReCAPTCHA from "react-google-recaptcha";
+
 
 export default function Login() {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading]   = useState(false);
-  const { login, error, setError } = useAuth();
+  const [captcha, setCaptcha]   = useState('');
+  const { login, loginWithGoogle, error, setError } = useAuth();
   const navigate = useNavigate();
+  const recaptchaRef = useRef(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const role = await login(email, password);
-    setLoading(false);
-    if (role === 'student')    navigate('/student/dashboard');
+  const googleClientId = (
+    import.meta.env.VITE_GOOGLE_CLIENT_ID
+    || import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
+    || ''
+  ).trim();
+  const isGoogleEnabled = Boolean(googleClientId);
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+
+  const navigateByRole = (role) => {
+    if (role === 'student') navigate('/student/dashboard');
     if (role === 'instructor') navigate('/instructor/overview');
   };
 
-  const fillDemo = (type) => {
-    setError('');
-    if (type === 'student') {
-      setEmail('alex@university.edu');
-      setPassword('student123');
-    } else {
-      setEmail('prof.rivera@university.edu');
-      setPassword('teach123');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!captcha) {
+      setError('Please complete the CAPTCHA before signing in.');
+      return;
     }
+
+    setLoading(true);
+    const role = await login(email, password, captcha);
+    setLoading(false);
+    recaptchaRef.current?.reset();
+    setCaptcha('');
+    navigateByRole(role);
+  };
+
+  const handleGoogle = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      setError('Google login response was invalid.');
+      return;
+    }
+
+    if (!captcha) {
+      setError('Please complete the CAPTCHA before using Google sign in.');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+    const role = await loginWithGoogle({ idToken: credentialResponse.credential, mode: 'signin', captchaToken: captcha });
+    setLoading(false);
+    recaptchaRef.current?.reset();
+    setCaptcha('');
+    navigateByRole(role);
   };
 
   return (
@@ -68,17 +101,6 @@ export default function Login() {
           <div className={styles.formEye}>Welcome back</div>
           <h2 className={styles.formTitle}>Sign in to<br />your account</h2>
 
-          {/* Demo quick-fill */}
-          <div className={styles.demoRow}>
-            <span className={styles.demoLabel}>Quick demo:</span>
-            <button className={styles.demoBtn} type="button" onClick={() => fillDemo('student')}>
-              <IconGraduationCap size={14} /> Student
-            </button>
-            <button className={styles.demoBtn} type="button" onClick={() => fillDemo('instructor')}>
-              <IconUserCheck size={14} /> Instructor
-            </button>
-          </div>
-
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.field}>
               <label className={styles.label}>Email Address</label>
@@ -104,6 +126,17 @@ export default function Login() {
               />
             </div>
 
+            <div className={styles.captchaWrap}>
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={recaptchaSiteKey}
+                onChange={(value) => {
+                  setCaptcha(value || '');
+                  if (value) setError('');
+                }}
+              />
+            </div>
+
             {error && <div className={styles.error}>{error}</div>}
 
             <button className={styles.submitBtn} type="submit" disabled={loading}>
@@ -115,8 +148,20 @@ export default function Login() {
             </button>
           </form>
 
+          <div className={styles.divider}><span>or continue with</span></div>
+
+          <div className={styles.socialRow}>
+            {isGoogleEnabled ? (
+              <GoogleLogin onSuccess={handleGoogle} onError={() => setError('Google sign-in was cancelled or failed.')} />
+            ) : (
+              <button className={styles.socialBtn} type="button" disabled>
+                Google sign-in unavailable (set VITE_GOOGLE_CLIENT_ID)
+              </button>
+            )}
+          </div>
+
           <p className={styles.footnote}>
-            You'll be redirected automatically based on your role.
+            Need an account? <Link className={styles.link} to="/signup">Create one</Link>
           </p>
         </div>
       </div>

@@ -1,34 +1,31 @@
 # PeerHub — Peer Review & Collaboration Platform
 
-**FSAD-PS26 | React + Vite Frontend | Node.js + Express Backend**
+React + Vite frontend with a Spring Boot backend.
 
 ## Getting Started
 
+1. Frontend:
+
 ```bash
-# 1. Install frontend dependencies
 npm install
-
-# 2. Install backend dependencies
-cd server && npm install && cd ..
-
-# 3. Start the backend server (port 3001)
-cd server && node index.js
-
-# 4. In a new terminal, start the Vite dev server (port 5173)
 npm run dev
-
-# 5. Open http://localhost:5173
 ```
 
-## Demo Credentials
+2. Backend:
 
-| Role       | Email                          | Password    |
-|------------|-------------------------------|-------------|
-| Student    | alex@university.edu           | student123  |
-| Student    | priya@university.edu          | student123  |
-| Instructor | prof.rivera@university.edu    | teach123    |
+```bash
+cd peerhub-backend
+./mvnw.cmd spring-boot:run
+```
 
-After login, users are **automatically redirected** to their respective dashboards.
+## Auth Features
+
+- Email/password sign in
+- Email/password sign up
+- Google sign in and sign up
+- CAPTCHA challenge before sign in
+
+Users are redirected to dashboards based on role after successful auth.
 
 ## Architecture
 
@@ -39,17 +36,19 @@ After login, users are **automatically redirected** to their respective dashboar
 - **API Client**: Fetch-based client with JWT token management
 - **Dev Proxy**: Vite proxies `/api` requests to the Express backend
 
-### Backend (Node.js + Express)
-- **Auth**: JWT-based authentication with bcrypt password support
-- **Data Store**: JSON file-based storage (`server/data/db.json`)
-- **CORS**: Configured for Vite dev server origins
-- **Role Guards**: Middleware for instructor-only endpoints
+### Backend (Spring Boot)
+- **Auth**: JWT-based authentication with BCrypt password hashing
+- **Data Store**: MySQL via Spring Data JPA
+- **CORS**: Configured for frontend origins
+- **Role Guards**: Spring Security + method-level checks
 
 ### API Endpoints
 
 | Method | Endpoint              | Auth | Description                    |
 |--------|-----------------------|------|--------------------------------|
 | POST   | `/api/auth/login`     | No   | Login, returns JWT token       |
+| POST   | `/api/auth/signup`    | No   | Signup, returns JWT token      |
+| POST   | `/api/auth/google`    | No   | Google auth, returns JWT token |
 | GET    | `/api/auth/me`        | Yes  | Get current user from token    |
 | GET    | `/api/projects`       | Yes  | List all projects              |
 | GET    | `/api/projects/:id`   | Yes  | Get project by ID              |
@@ -69,23 +68,10 @@ After login, users are **automatically redirected** to their respective dashboar
 ```
 peerhub/
 ├── index.html
-├── vite.config.js          # Dev proxy → backend
+├── vite.config.js
 ├── package.json
-├── server/
-│   ├── index.js            # Express entry point
-│   ├── package.json
-│   ├── db.js               # JSON file read/write helpers
-│   ├── middleware/
-│   │   └── auth.js         # JWT auth + role guard middleware
-│   ├── routes/
-│   │   ├── auth.js         # Login + /me endpoints
-│   │   ├── projects.js     # Projects CRUD
-│   │   ├── reviews.js      # Reviews + submit
-│   │   ├── students.js     # Student list (instructor)
-│   │   ├── assignments.js  # Assignment management
-│   │   └── settings.js     # Course settings
-│   └── data/
-│       └── db.json         # JSON data store
+├── peerhub-backend/
+│   └── src/main/java/com/peerhub/
 └── src/
     ├── main.jsx            # App entry point
     ├── App.jsx             # Router + route protection
@@ -94,9 +80,7 @@ peerhub/
     ├── styles/
     │   └── global.css      # CSS variables, resets, animations
     ├── context/
-    │   └── AuthContext.jsx  # Auth state + API-based login
-    ├── data/
-    │   └── mockData.js     # Legacy mock data (unused)
+    │   └── AuthContext.jsx  # Auth state + API-based login/signup
     ├── components/
     │   ├── Icons.jsx        # SVG icon components
     │   ├── UI.jsx / .css    # Shared UI components
@@ -105,6 +89,7 @@ peerhub/
     │   └── ProtectedRoute.jsx
     └── pages/
         ├── Login.jsx / .css
+        ├── Signup.jsx / .css
         ├── student/
         │   ├── StudentLayout.jsx
         │   ├── StudentDashboard.jsx

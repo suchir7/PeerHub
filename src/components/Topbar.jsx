@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { IconBell } from './Icons';
 import styles from './Topbar.module.css';
 
-export default function Topbar({ title, notifications = [], storageKey = 'peerhub_notif' }) {
+export default function Topbar({ title, notifications = [], storageKey = 'peerhub_notif', onNotificationClick }) {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
   const [open, setOpen] = useState(false);
   const [readIds, setReadIds] = useState([]);
@@ -33,6 +33,16 @@ export default function Topbar({ title, notifications = [], storageKey = 'peerhu
     setReadIds(notifications.map(n => n.id));
   };
 
+  const handleItemClick = (notification) => {
+    if (!readIds.includes(notification.id)) {
+      setReadIds(prev => [...prev, notification.id]);
+    }
+    setOpen(false);
+    if (onNotificationClick) {
+      onNotificationClick(notification);
+    }
+  };
+
   return (
     <header className={styles.topbar}>
       <h1 className={styles.title}>{title}</h1>
@@ -52,10 +62,15 @@ export default function Topbar({ title, notifications = [], storageKey = 'peerhu
               <div className={styles.panelBody}>
                 {notifications.length === 0 && <div className={styles.empty}>No notifications right now.</div>}
                 {notifications.map(n => (
-                  <div key={n.id} className={`${styles.item} ${readIds.includes(n.id) ? styles.itemRead : ''}`}>
+                  <button
+                    key={n.id}
+                    type="button"
+                    className={`${styles.item} ${readIds.includes(n.id) ? styles.itemRead : ''}`}
+                    onClick={() => handleItemClick(n)}
+                  >
                     <div className={styles.itemTitle}>{n.title}</div>
                     <div className={styles.itemMeta}>{n.meta}</div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>

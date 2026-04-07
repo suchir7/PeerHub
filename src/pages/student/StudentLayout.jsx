@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import Topbar from '../../components/Topbar';
@@ -15,6 +15,7 @@ const TITLES = {
 
 export default function StudentLayout() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [pending, setPending] = useState([]);
   const [reviews, setReviews] = useState([]);
 
@@ -35,11 +36,13 @@ export default function StudentLayout() {
       id: `pending-${p.id}`,
       title: `Review due: ${p.title}`,
       meta: p.due,
+      path: `/student/feedback?assignmentId=${p.id}`,
     }));
     const reviewNotifs = reviews.slice(0, 3).map(r => ({
       id: `review-${r.id}`,
       title: `New review received for ${r.project}`,
       meta: `${r.reviewer} · Score ${r.score}`,
+      path: '/student/reviews',
     }));
     return [...pendingNotifs, ...reviewNotifs];
   }, [pending, reviews]);
@@ -52,6 +55,7 @@ export default function StudentLayout() {
           title={TITLES[pathname] || 'Dashboard'}
           notifications={notifications}
           storageKey="peerhub_student_notifs"
+          onNotificationClick={(n) => n.path && navigate(n.path)}
         />
         <main className={styles.content}>
           <Outlet />

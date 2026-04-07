@@ -113,9 +113,13 @@
 }
 
 .item {
+  width: 100%;
+  text-align: left;
+  border: none;
   padding: 10px 12px;
   border-bottom: 1px solid var(--rule);
   background: var(--orange-tint);
+  cursor: pointer;
 }
 
 .item:last-child { border-bottom: none; }

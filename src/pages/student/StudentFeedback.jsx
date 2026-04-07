@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { apiGetPendingReviews, apiSubmitReview } from '../../api/client';
 import { Card, CardHeader, StarRating } from '../../components/UI';
 import { IconClipboard } from '../../components/Icons';
@@ -7,6 +8,7 @@ import styles from './StudentFeedback.module.css';
 const CRITERIA = ['Code Quality', 'Documentation', 'Teamwork', 'Innovation'];
 
 export default function StudentFeedback() {
+  const [searchParams] = useSearchParams();
   const [ratings, setRatings]       = useState(Object.fromEntries(CRITERIA.map(c => [c, 0])));
   const [comment, setComment]       = useState('');
   const [score, setScore]           = useState('');
@@ -17,14 +19,19 @@ export default function StudentFeedback() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    const requestedAssignmentId = searchParams.get('assignmentId');
     apiGetPendingReviews().then(data => {
       setPending(data);
       if (data.length > 0) {
-        setProject(data[0].title);
-        setAssignmentId(data[0].id);
+        const selected = requestedAssignmentId
+          ? data.find(d => String(d.id) === requestedAssignmentId)
+          : data[0];
+        const picked = selected || data[0];
+        setProject(picked.title);
+        setAssignmentId(picked.id);
       }
     }).catch(console.error);
-  }, []);
+  }, [searchParams]);
 
   const canSubmit = assignmentId && comment.trim() && score && Object.values(ratings).every(v => v > 0) && !submitting;
 

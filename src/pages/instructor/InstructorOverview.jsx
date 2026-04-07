@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { apiGetProjects, apiGetStudents } from '../../api/client';
+import { apiGetAssignments, apiGetProjects, apiGetReviews, apiGetStudents } from '../../api/client';
 import { StatCard, Card, CardHeader, ProgressBar, StatusBadge, Avatar } from '../../components/UI';
 import { IconGraduationCap, IconFolder, IconEdit, IconAlertTriangle, IconTrophy } from '../../components/Icons';
 import styles from './InstructorOverview.module.css';
@@ -14,13 +14,22 @@ export default function InstructorOverview() {
 
   const [projects, setProjects] = useState([]);
   const [students, setStudents] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     apiGetProjects().then(setProjects).catch(console.error);
     apiGetStudents().then(setStudents).catch(console.error);
+    apiGetAssignments().then(setAssignments).catch(console.error);
+    apiGetReviews().then(setReviews).catch(console.error);
   }, []);
 
-  const totalReviews = projects.reduce((sum, p) => sum + p.reviews, 0);
+  const totalReviews = reviews.length;
+  const pendingAssignments = assignments.filter(a => String(a.status || '').toLowerCase() === 'pending').length;
+  const completionRate = assignments.length
+    ? Math.round(((assignments.length - pendingAssignments) / assignments.length) * 100)
+    : 0;
+  const rankedStudents = [...students].sort((a, b) => (b.score || 0) - (a.score || 0));
 
   return (
     <div className="page-enter">
@@ -28,16 +37,16 @@ export default function InstructorOverview() {
         <div className={styles.bannerContent}>
           <div className={styles.bannerEye}>Instructor Dashboard</div>
           <div className={styles.bannerName}>Welcome, {firstName}.</div>
-          <div className={styles.bannerSub}>FSAD-PS26 · Spring 2025 · {students.length} students enrolled across {projects.length} teams.</div>
+          <div className={styles.bannerSub}>Course workspace · {students.length} students enrolled across {projects.length} projects.</div>
         </div>
         <div className={styles.bannerDecor}><IconGraduationCap size={48} color="var(--orange-soft)" /></div>
       </div>
 
       <div className={styles.statsRow}>
-        <StatCard icon={<IconGraduationCap size={20} />} value={students.length || '24'} label="Students"      note={`${projects.length} teams registered`} chipColor="chipOrange" />
-        <StatCard icon={<IconFolder size={20} />}         value={projects.length || '4'}  label="Projects"      note="All active"          chipColor="chipBlue"   />
-        <StatCard icon={<IconEdit size={20} />}           value={totalReviews || '0'}      label="Reviews Done"  note="78% completion"      chipColor="chipGreen"  />
-        <StatCard icon={<IconAlertTriangle size={20} />}  value="12"                       label="Pending"       note="Due this week"       chipColor="chipYellow" />
+        <StatCard icon={<IconGraduationCap size={20} />} value={students.length || '0'} label="Students"     note={`${projects.length} projects tracked`} chipColor="chipOrange" />
+        <StatCard icon={<IconFolder size={20} />}         value={projects.length || '0'} label="Projects"     note={`${assignments.length} assignments total`} chipColor="chipBlue"   />
+        <StatCard icon={<IconEdit size={20} />}           value={totalReviews || '0'}     label="Reviews Done" note={`${completionRate}% completion`} chipColor="chipGreen"  />
+        <StatCard icon={<IconAlertTriangle size={20} />}  value={pendingAssignments || '0'} label="Pending"    note="Need reviewer action" chipColor="chipYellow" />
       </div>
 
       <div className={styles.grid}>
@@ -58,7 +67,7 @@ export default function InstructorOverview() {
                 {projects.map(p => (
                   <tr key={p.id}>
                     <td className={styles.tdName}>{p.name}</td>
-                    <td className={styles.tdMuted}>T-0{p.id}</td>
+                    <td className={styles.tdMuted}>{p.courseName || 'Course Project'}</td>
                     <td>{p.reviews}</td>
                     <td><ProgressBar value={p.progress} done={p.status === 'done'} /></td>
                     <td><StatusBadge status={p.status} /></td>
@@ -72,11 +81,11 @@ export default function InstructorOverview() {
         <Card>
           <CardHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><IconTrophy size={18} color="var(--orange)" /> Top Performers</span>} />
           <div className={styles.leaderBody}>
-            {students.map((s, i) => (
+            {rankedStudents.map((s, i) => (
               <div key={s.name} className={styles.leaderRow}>
                 <div
                   className={styles.rank}
-                  style={{ background: RANK_COLORS[i], color: RANK_TEXT[i] }}
+                  style={{ background: RANK_COLORS[i % RANK_COLORS.length], color: RANK_TEXT[i % RANK_TEXT.length] }}
                 >
                   {i + 1}
                 </div>

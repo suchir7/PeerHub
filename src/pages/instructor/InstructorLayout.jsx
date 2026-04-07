@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import Topbar from '../../components/Topbar';
@@ -15,6 +15,7 @@ const TITLES = {
 
 export default function InstructorLayout() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [availableStudents, setAvailableStudents] = useState([]);
 
@@ -43,6 +44,7 @@ export default function InstructorLayout() {
         id: `assignment-${a.id}`,
         title: `Pending: ${a.reviewer} reviews ${a.reviewing}`,
         meta: `${a.project} · Due ${a.due}`,
+        path: '/instructor/assignments',
       }));
 
     if (availableStudents.length > 0) {
@@ -50,6 +52,7 @@ export default function InstructorLayout() {
         id: 'available-students',
         title: `${availableStudents.length} student(s) available to assign`,
         meta: 'Open Assignments tab to enroll them in your course',
+        path: '/instructor/assignments',
       });
     }
 
@@ -64,6 +67,7 @@ export default function InstructorLayout() {
           title={TITLES[pathname] || 'Overview'}
           notifications={notifications}
           storageKey="peerhub_instructor_notifs"
+          onNotificationClick={(n) => n.path && navigate(n.path)}
         />
         <main className={styles.content}>
           <Outlet />

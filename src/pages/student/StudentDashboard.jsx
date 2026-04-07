@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { apiGetProjects, apiGetReviews, apiGetPendingReviews, apiGetStudentProfile } from '../../api/client';
 import { StatCard, Card, CardHeader, ProgressBar, StatusBadge, Avatar } from '../../components/UI';
@@ -7,6 +8,7 @@ import styles from './StudentDashboard.module.css';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const firstName = user?.name?.split(' ')[0] || 'there';
 
   const [projects, setProjects] = useState([]);
@@ -82,7 +84,7 @@ export default function StudentDashboard() {
                     <div className={styles.assignTitle}>{a.title}</div>
                     <div className={styles.assignDue}>{a.due}</div>
                   </div>
-                  <button className={styles.btnReview}>Review</button>
+                  <button className={styles.btnReview} onClick={() => navigate(`/student/feedback?assignmentId=${a.id}`)}>Review</button>
                 </div>
               ))}
             </div>

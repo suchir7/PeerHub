@@ -164,56 +164,61 @@ export default function InstructorAssignments() {
       {showModal && (
         <div className={styles.overlay} onClick={() => setShow(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <h3 className={styles.modalTitle}>Create New Assignment</h3>
-
-            <div className={styles.mField}>
-              <label className={styles.mLabel}>Course</label>
-              <select className={styles.mCtrl} value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)}>
-                <option value="">{settings.courseName || 'Set course in settings'}</option>
-                {[...new Set(students.map(s => s.team).filter(Boolean))].map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Create New Assignment</h3>
+              <button className={styles.closeBtn} onClick={() => setShow(false)} title="Close">✕</button>
             </div>
 
-            <div className={styles.mField}>
-              <label className={styles.mLabel}>Reviewer</label>
-              <select className={styles.mCtrl} value={form.reviewerStudentId} onChange={e => set('reviewerStudentId', e.target.value)}>
-                <option value="">Select…</option>
-                {studentsInCourse.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
+            <div className={styles.modalContent}>
+              <div className={styles.mField}>
+                <label className={styles.mLabel}>Course</label>
+                <select className={styles.mCtrl} value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)}>
+                  <option value="">{settings.courseName || 'Set course in settings'}</option>
+                  {[...new Set(students.map(s => s.team).filter(Boolean))].map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
 
-            <div className={styles.mField}>
-              <label className={styles.mLabel}>Reviewing</label>
-              <select className={styles.mCtrl} value={form.reviewingStudentId} onChange={e => set('reviewingStudentId', e.target.value)}>
-                <option value="">Select…</option>
-                {studentsInCourse.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
+              <div className={styles.mField}>
+                <label className={styles.mLabel}>Reviewer</label>
+                <select className={styles.mCtrl} value={form.reviewerStudentId} onChange={e => set('reviewerStudentId', e.target.value)}>
+                  <option value="">Select…</option>
+                  {studentsInCourse.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
 
-            <div className={styles.mField}>
-              <label className={styles.mLabel}>Existing Project (optional)</label>
-              <select className={styles.mCtrl} value={form.projectId} onChange={e => set('projectId', e.target.value)}>
-                <option value="">Select…</option>
-                {projectsInCourse.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </div>
+              <div className={styles.mField}>
+                <label className={styles.mLabel}>Reviewing</label>
+                <select className={styles.mCtrl} value={form.reviewingStudentId} onChange={e => set('reviewingStudentId', e.target.value)}>
+                  <option value="">Select…</option>
+                  {studentsInCourse.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
 
-            <div className={styles.mField}>
-              <label className={styles.mLabel}>Or New Project Name</label>
-              <input className={styles.mCtrl} value={form.project} onChange={e => set('project', e.target.value)} placeholder="Enter new project name" />
-            </div>
+              <div className={styles.mField}>
+                <label className={styles.mLabel}>Existing Project (optional)</label>
+                <select className={styles.mCtrl} value={form.projectId} onChange={e => set('projectId', e.target.value)}>
+                  <option value="">Select…</option>
+                  {projectsInCourse.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
 
-            <div className={styles.mField}>
-              <label className={styles.mLabel}>Due Date</label>
-              <input className={styles.mCtrl} type="date" value={form.due} onChange={e => set('due', e.target.value)} />
-            </div>
+              <div className={styles.mField}>
+                <label className={styles.mLabel}>Or New Project Name</label>
+                <input className={styles.mCtrl} value={form.project} onChange={e => set('project', e.target.value)} placeholder="Enter new project name" />
+              </div>
 
-            <div className={styles.mField}>
-              <label className={styles.mLabel}>Semester</label>
-              <input className={styles.mCtrl} value={form.semester} onChange={e => set('semester', e.target.value)} placeholder="e.g. Spring 2026" />
-            </div>
+              <div className={styles.mField}>
+                <label className={styles.mLabel}>Due Date</label>
+                <input className={styles.mCtrl} type="date" value={form.due} onChange={e => set('due', e.target.value)} />
+              </div>
 
-            {err && <div className={styles.mErr}>{err}</div>}
+              <div className={styles.mField}>
+                <label className={styles.mLabel}>Semester</label>
+                <input className={styles.mCtrl} value={form.semester} onChange={e => set('semester', e.target.value)} placeholder="e.g. Spring 2026" />
+              </div>
+
+              {err && <div className={styles.mErr}>{err}</div>}
+            </div>
 
             <div className={styles.mActions}>
               <button className={styles.mCancel} onClick={() => setShow(false)}>Cancel</button>

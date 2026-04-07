@@ -10,8 +10,11 @@ function authHeaders() {
 }
 
 async function request(url, options = {}) {
+  const timeoutMs = options.timeoutMs ?? 30000;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  const { timeoutMs: _ignoredTimeoutMs, ...fetchOptions } = options;
 
   let res;
   try {
@@ -19,10 +22,10 @@ async function request(url, options = {}) {
       headers: {
         'Content-Type': 'application/json',
         ...authHeaders(),
-        ...options.headers,
+        ...fetchOptions.headers,
       },
       signal: controller.signal,
-      ...options,
+      ...fetchOptions,
     });
   } catch (err) {
     if (err.name === 'AbortError') {
@@ -46,29 +49,43 @@ async function request(url, options = {}) {
   return data;
 }
 
+async function requestWithRetry(url, options = {}, retries = 1) {
+  try {
+    return await request(url, options);
+  } catch (err) {
+    if (retries > 0 && String(err?.message || '').toLowerCase().includes('timed out')) {
+      return requestWithRetry(url, options, retries - 1);
+    }
+    throw err;
+  }
+}
+
 // Auth
 export async function apiLogin(email, password, captchaToken) {
-  const data = await request('/auth/login', {
+  const data = await requestWithRetry('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password, captchaToken }),
+    timeoutMs: 45000,
   });
   localStorage.setItem('peerhub_token', data.token);
   return data;
 }
 
 export async function apiSignup(signupData) {
-  const data = await request('/auth/signup', {
+  const data = await requestWithRetry('/auth/signup', {
     method: 'POST',
     body: JSON.stringify(signupData),
+    timeoutMs: 45000,
   });
   localStorage.setItem('peerhub_token', data.token);
   return data;
 }
 
 export async function apiGoogleAuth(idToken, mode, role, captchaToken) {
-  const data = await request('/auth/google', {
+  const data = await requestWithRetry('/auth/google', {
     method: 'POST',
     body: JSON.stringify({ idToken, mode, role, captchaToken }),
+    timeoutMs: 45000,
   });
   localStorage.setItem('peerhub_token', data.token);
   return data;

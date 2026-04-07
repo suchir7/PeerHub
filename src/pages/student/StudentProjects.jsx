@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { apiCreateProject, apiGetProjects } from '../../api/client';
 import { StatusBadge, ProgressBar } from '../../components/UI';
 import styles from './StudentProjects.module.css';
@@ -12,6 +12,7 @@ export default function StudentProjects() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ name: '', desc: '', due: '', members: 1 });
+  const nameInputRef = useRef(null);
 
   useEffect(() => {
     apiGetProjects().then(setProjects).catch(console.error);
@@ -43,6 +44,12 @@ export default function StudentProjects() {
       setCreating(false);
     }
   };
+
+  useEffect(() => {
+    if (showModal && nameInputRef.current) {
+      setTimeout(() => nameInputRef.current?.focus(), 50);
+    }
+  }, [showModal]);
 
   return (
     <div className="page-enter">
@@ -84,26 +91,53 @@ export default function StudentProjects() {
       {showModal && (
         <div className={styles.overlay} onClick={() => setShowModal(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <h3 className={styles.modalTitle}>Create New Project</h3>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Create New Project</h3>
+              <button className={styles.closeBtn} onClick={() => setShowModal(false)} title="Close">✕</button>
+            </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Project Name</label>
-              <input className={styles.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+              <label className={styles.label}>Project Name <span className={styles.required}>*</span></label>
+              <input 
+                ref={nameInputRef}
+                className={styles.input} 
+                placeholder="Enter project name"
+                value={form.name} 
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))} 
+                onKeyPress={e => e.key === 'Enter' && !creating && createProject()}
+              />
             </div>
 
             <div className={styles.field}>
               <label className={styles.label}>Description</label>
-              <textarea className={styles.textarea} value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} />
+              <textarea 
+                className={styles.textarea} 
+                placeholder="Add project description (optional)"
+                value={form.desc} 
+                onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} 
+              />
             </div>
 
             <div className={styles.row2}>
               <div className={styles.field}>
-                <label className={styles.label}>Due Date</label>
-                <input type="date" className={styles.input} value={form.due} onChange={e => setForm(f => ({ ...f, due: e.target.value }))} />
+                <label className={styles.label}>Due Date <span className={styles.required}>*</span></label>
+                <input 
+                  type="date" 
+                  className={styles.input} 
+                  value={form.due} 
+                  onChange={e => setForm(f => ({ ...f, due: e.target.value }))} 
+                />
               </div>
               <div className={styles.field}>
                 <label className={styles.label}>Team Members</label>
-                <input type="number" min="1" className={styles.input} value={form.members} onChange={e => setForm(f => ({ ...f, members: e.target.value }))} />
+                <input 
+                  type="number" 
+                  min="1" 
+                  className={styles.input} 
+                  placeholder="1"
+                  value={form.members} 
+                  onChange={e => setForm(f => ({ ...f, members: e.target.value }))} 
+                />
               </div>
             </div>
 
@@ -112,7 +146,7 @@ export default function StudentProjects() {
             <div className={styles.actions}>
               <button className={styles.cancelBtn} onClick={() => setShowModal(false)}>Cancel</button>
               <button className={styles.createBtn} onClick={createProject} disabled={creating}>
-                {creating ? 'Creating...' : 'Create'}
+                {creating ? 'Creating...' : 'Create Project'}
               </button>
             </div>
           </div>

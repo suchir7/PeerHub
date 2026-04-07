@@ -39,11 +39,14 @@ export default function Signup() {
     }
 
     setLoading(true);
-    const nextRole = await signup({ name, email, password, role, captchaToken: captcha });
-    setLoading(false);
-    recaptchaRef.current?.reset();
-    setCaptcha('');
-    navigateByRole(nextRole);
+    try {
+      const nextRole = await signup({ name, email, password, role, captchaToken: captcha });
+      recaptchaRef.current?.reset();
+      setCaptcha('');
+      navigateByRole(nextRole);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogle = async (credentialResponse) => {
@@ -59,16 +62,19 @@ export default function Signup() {
 
     setError('');
     setLoading(true);
-    const nextRole = await loginWithGoogle({
-      idToken: credentialResponse.credential,
-      mode: 'signup',
-      role,
-      captchaToken: captcha,
-    });
-    setLoading(false);
-    recaptchaRef.current?.reset();
-    setCaptcha('');
-    navigateByRole(nextRole);
+    try {
+      const nextRole = await loginWithGoogle({
+        idToken: credentialResponse.credential,
+        mode: 'signup',
+        role,
+        captchaToken: captcha,
+      });
+      recaptchaRef.current?.reset();
+      setCaptcha('');
+      navigateByRole(nextRole);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -10,16 +10,35 @@ function authHeaders() {
 }
 
 async function request(url, options = {}) {
-  const res = await fetch(`${API_BASE}${url}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders(),
-      ...options.headers,
-    },
-    ...options,
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
 
-  const data = await res.json();
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${url}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders(),
+        ...options.headers,
+      },
+      signal: controller.signal,
+      ...options,
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.');
+    }
+    throw new Error('Network error. Please check your connection and API URL.');
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  let data = {};
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
 
   if (!res.ok) {
     throw new Error(data.error || 'Request failed');

@@ -37,11 +37,14 @@ export default function Login() {
     }
 
     setLoading(true);
-    const role = await login(email, password, captcha);
-    setLoading(false);
-    recaptchaRef.current?.reset();
-    setCaptcha('');
-    navigateByRole(role);
+    try {
+      const role = await login(email, password, captcha);
+      recaptchaRef.current?.reset();
+      setCaptcha('');
+      navigateByRole(role);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogle = async (credentialResponse) => {
@@ -57,11 +60,14 @@ export default function Login() {
 
     setError('');
     setLoading(true);
-    const role = await loginWithGoogle({ idToken: credentialResponse.credential, mode: 'signin', captchaToken: captcha });
-    setLoading(false);
-    recaptchaRef.current?.reset();
-    setCaptcha('');
-    navigateByRole(role);
+    try {
+      const role = await loginWithGoogle({ idToken: credentialResponse.credential, mode: 'signin', captchaToken: captcha });
+      recaptchaRef.current?.reset();
+      setCaptcha('');
+      navigateByRole(role);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

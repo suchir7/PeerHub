@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   apiGetAssignments,
   apiGetStudents,
@@ -161,7 +162,7 @@ export default function InstructorAssignments() {
         </div>
       </Card>
 
-      {showModal && (
+      {showModal && createPortal(
         <div className={styles.overlay} onClick={() => setShow(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
@@ -225,7 +226,8 @@ export default function InstructorAssignments() {
               <button className={styles.mCreate} onClick={handleCreate}>Create Assignment</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

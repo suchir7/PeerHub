@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { apiCreateProject, apiGetProjects } from '../../api/client';
 import { StatusBadge, ProgressBar } from '../../components/UI';
 import styles from './StudentProjects.module.css';
@@ -88,7 +89,7 @@ export default function StudentProjects() {
         ))}
       </div>
 
-      {showModal && (
+      {showModal && createPortal(
         <div className={styles.overlay} onClick={() => setShowModal(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
@@ -152,7 +153,8 @@ export default function StudentProjects() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -108,6 +108,10 @@ export async function apiGetProject(id) {
   return request(`/projects/${id}`);
 }
 
+export async function apiGetProjectsForStudent(studentId) {
+  return request(`/projects/student/${studentId}`);
+}
+
 export async function apiCreateProject(projectData) {
   return request('/projects', {
     method: 'POST',

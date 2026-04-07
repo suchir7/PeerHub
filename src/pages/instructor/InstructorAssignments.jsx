@@ -5,10 +5,10 @@ import {
   apiGetStudents,
   apiGetAvailableStudents,
   apiAssignStudent,
-  apiGetProjects,
   apiCreateAssignment,
   apiGetSettings,
   apiUpdateSettings,
+  apiGetProjectsForStudent,
 } from '../../api/client';
 import { Card, StatusBadge } from '../../components/UI';
 import styles from './InstructorAssignments.module.css';
@@ -17,7 +17,8 @@ export default function InstructorAssignments() {
   const [list, setList]       = useState([]);
   const [students, setStudents] = useState([]);
   const [availableStudents, setAvailableStudents] = useState([]);
-  const [projects, setProjects] = useState([]);
+  const [reviewingProjects, setReviewingProjects] = useState([]);
+  const [loadingReviewingProjects, setLoadingReviewingProjects] = useState(false);
   const [settings, setSettings] = useState({});
   const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
@@ -35,13 +36,11 @@ export default function InstructorAssignments() {
       apiGetAssignments(),
       apiGetStudents(),
       apiGetAvailableStudents(),
-      apiGetProjects(),
       apiGetSettings(),
-    ]).then(([assignmentsData, studentsData, availableData, projectsData, settingsData]) => {
+    ]).then(([assignmentsData, studentsData, availableData, settingsData]) => {
       setList(assignmentsData);
       setStudents(studentsData);
       setAvailableStudents(availableData);
-      setProjects(projectsData);
       setSettings(settingsData || {});
 
       const fallbackCourse = settingsData?.courseName || '';
@@ -65,13 +64,6 @@ export default function InstructorAssignments() {
   ].filter(Boolean))).sort((a, b) => a.localeCompare(b));
 
   const studentsInCourse = students.filter(s => selectedCourse && s.team === selectedCourse);
-  const projectsInCourse = projects.filter(p => !selectedCourse || p.courseName === selectedCourse);
-  const projectsForReviewingStudent = projectsInCourse.filter((p) => {
-    if (!form.reviewingStudentId) {
-      return false;
-    }
-    return Number(p.ownerStudentId) === Number(form.reviewingStudentId);
-  });
   const assignmentsInCourse = selectedCourse
     ? list.filter(a => (a.courseName || '') === selectedCourse)
     : list;
@@ -124,6 +116,19 @@ export default function InstructorAssignments() {
       setSavingCourse(false);
     }
   };
+
+  useEffect(() => {
+    if (!form.reviewingStudentId) {
+      setReviewingProjects([]);
+      return;
+    }
+
+    setLoadingReviewingProjects(true);
+    apiGetProjectsForStudent(form.reviewingStudentId)
+      .then((data) => setReviewingProjects(Array.isArray(data) ? data : []))
+      .catch(() => setReviewingProjects([]))
+      .finally(() => setLoadingReviewingProjects(false));
+  }, [form.reviewingStudentId]);
 
   const handleCreate = async () => {
     if (!selectedCourse.trim()) {
@@ -393,9 +398,16 @@ export default function InstructorAssignments() {
               <div className={styles.mField}>
                 <label className={styles.mLabel}>Existing Project of Reviewing Student (optional)</label>
                 <select className={styles.mCtrl} value={form.projectId} onChange={e => set('projectId', e.target.value)}>
-                  <option value="">{form.reviewingStudentId ? 'Select project…' : 'Select reviewing student first'}</option>
-                  {projectsForReviewingStudent.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  <option value="">
+                    {!form.reviewingStudentId
+                      ? 'Select reviewing student first'
+                      : (loadingReviewingProjects ? 'Loading projects...' : 'Select project...')}
+                  </option>
+                  {reviewingProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
+                {!!form.reviewingStudentId && !loadingReviewingProjects && reviewingProjects.length === 0 && (
+                  <div className={styles.helperText}>No existing projects found for this student. Enter a new project name below.</div>
+                )}
               </div>
 
               <div className={styles.mField}>

@@ -19,9 +19,12 @@ export default function InstructorAssignments() {
   const [projects, setProjects] = useState([]);
   const [settings, setSettings] = useState({});
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedSemester, setSelectedSemester] = useState('');
+  const [courseDraft, setCourseDraft] = useState('');
+  const [selectedEnrollmentIds, setSelectedEnrollmentIds] = useState([]);
+  const [enrolling, setEnrolling] = useState(false);
   const [showModal, setShow]  = useState(false);
   const [form, setForm]       = useState({ reviewerStudentId: '', reviewingStudentId: '', projectId: '', project: '', due: '', semester: '' });
-  const [studentToAssign, setStudentToAssign] = useState('');
   const [err, setErr]         = useState('');
   const [assignErr, setAssignErr] = useState('');
 
@@ -40,8 +43,11 @@ export default function InstructorAssignments() {
       setSettings(settingsData || {});
 
       const fallbackCourse = settingsData?.courseName || '';
-      setSelectedCourse(fallbackCourse);
-      setForm(p => ({ ...p, semester: settingsData?.semester || '' }));
+      const fallbackSemester = settingsData?.semester || '';
+      setSelectedCourse((prev) => prev || fallbackCourse);
+      setSelectedSemester((prev) => prev || fallbackSemester);
+      setCourseDraft((prev) => prev || fallbackCourse);
+      setForm(p => ({ ...p, semester: fallbackSemester }));
     }).catch(console.error);
   };
 
@@ -51,12 +57,62 @@ export default function InstructorAssignments() {
 
   const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErr(''); };
 
-  const studentsInCourse = students.filter(s => !selectedCourse || s.team === selectedCourse);
+  const knownCourses = Array.from(new Set([
+    ...students.map(s => s.team).filter(c => c && c !== 'Unassigned'),
+    settings.courseName,
+  ].filter(Boolean))).sort((a, b) => a.localeCompare(b));
+
+  const studentsInCourse = students.filter(s => selectedCourse && s.team === selectedCourse);
   const projectsInCourse = projects.filter(p => !selectedCourse || p.courseName === selectedCourse);
+  const availableById = new Set(availableStudents.map(s => s.id));
+  const reassignmentCandidates = students.filter(s => selectedCourse && s.team !== selectedCourse);
+  const enrollmentCandidates = [
+    ...availableStudents.map(s => ({ ...s, candidateType: 'new' })),
+    ...reassignmentCandidates
+      .filter(s => !availableById.has(s.id))
+      .map(s => ({ ...s, candidateType: 'move' })),
+  ];
+
+  const toggleEnrollment = (studentId) => {
+    setAssignErr('');
+    setSelectedEnrollmentIds((prev) => (
+      prev.includes(studentId)
+        ? prev.filter(id => id !== studentId)
+        : [...prev, studentId]
+    ));
+  };
+
+  const applyCourseSelection = () => {
+    const nextCourse = courseDraft.trim();
+    const nextSemester = selectedSemester.trim();
+
+    if (!nextCourse) {
+      setAssignErr('Enter a course name to continue.');
+      return;
+    }
+    if (!nextSemester) {
+      setAssignErr('Enter semester before creating/selecting a course.');
+      return;
+    }
+
+    setSelectedCourse(nextCourse);
+    setSelectedSemester(nextSemester);
+    setForm(p => ({ ...p, semester: nextSemester }));
+    setSelectedEnrollmentIds([]);
+    setAssignErr('');
+  };
 
   const handleCreate = async () => {
+    if (!selectedCourse.trim()) {
+      setErr('Create or select a course first.');
+      return;
+    }
     if (!form.reviewerStudentId || !form.reviewingStudentId || !form.due) {
       setErr('Please fill in all fields.'); return;
+    }
+    if (form.reviewerStudentId === form.reviewingStudentId) {
+      setErr('Reviewer and reviewing student must be different.');
+      return;
     }
     if (!form.projectId && !form.project.trim()) {
       setErr('Select a project or enter a new project name.'); return;
@@ -68,36 +124,48 @@ export default function InstructorAssignments() {
         projectId: form.projectId ? Number(form.projectId) : null,
         project: form.project,
         due: form.due,
-        courseName: selectedCourse || settings.courseName || '',
-        semester: form.semester || settings.semester || '',
+        courseName: selectedCourse,
+        semester: form.semester || selectedSemester || settings.semester || '',
       });
       setList(l => [...l, newAssignment]);
       setShow(false);
-      setForm({ reviewerStudentId: '', reviewingStudentId: '', projectId: '', project: '', due: '', semester: settings?.semester || '' });
+      setForm({ reviewerStudentId: '', reviewingStudentId: '', projectId: '', project: '', due: '', semester: selectedSemester || settings?.semester || '' });
     } catch (error) {
       setErr(error.message || 'Failed to create assignment');
     }
   };
 
-  const handleAssignStudent = async () => {
-    if (!studentToAssign) {
-      setAssignErr('Please select a student to assign.');
+  const handleAssignStudents = async () => {
+    if (!selectedCourse.trim()) {
+      setAssignErr('Create or select a course first.');
       return;
     }
-    const courseName = selectedCourse || settings.courseName || '';
-    const semester = form.semester || settings.semester || '';
-    if (!courseName || !semester) {
-      setAssignErr('Set course name and semester in instructor settings first.');
+    if (!selectedSemester.trim()) {
+      setAssignErr('Enter semester before adding students.');
+      return;
+    }
+    if (selectedEnrollmentIds.length === 0) {
+      setAssignErr('Select at least one student to add to this course.');
       return;
     }
 
     try {
-      await apiAssignStudent(Number(studentToAssign), { courseName, semester });
-      setStudentToAssign('');
+      setEnrolling(true);
+      await Promise.all(
+        selectedEnrollmentIds.map((studentId) =>
+          apiAssignStudent(Number(studentId), {
+            courseName: selectedCourse.trim(),
+            semester: selectedSemester.trim(),
+          })
+        )
+      );
       setAssignErr('');
+      setSelectedEnrollmentIds([]);
       loadAll();
     } catch (error) {
       setAssignErr(error.message || 'Failed to assign student');
+    } finally {
+      setEnrolling(false);
     }
   };
 
@@ -112,25 +180,86 @@ export default function InstructorAssignments() {
       </div>
 
       <Card>
-        <div className={styles.tableWrap} style={{ padding: '1rem' }}>
-          <h4 style={{ margin: 0, marginBottom: 12 }}>Student Enrollment</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 10, alignItems: 'end' }}>
-            <div>
-              <label style={{ fontSize: 12 }}>Course</label>
-              <select className={styles.mCtrl} value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
-                <option value="">{settings.courseName || 'Select / set course in settings'}</option>
-                {[...new Set(students.map(s => s.team).filter(Boolean))].map(c => <option key={c} value={c}>{c}</option>)}
+        <div className={styles.enrollmentWrap}>
+          <h4 className={styles.sectionTitle}>Course Setup & Student Enrollment</h4>
+          <div className={styles.enrollmentGrid}>
+            <div className={styles.enrollField}>
+              <label className={styles.enrollLabel}>Existing Course</label>
+              <select
+                className={styles.mCtrl}
+                value={selectedCourse}
+                onChange={(e) => {
+                  setSelectedCourse(e.target.value);
+                  setCourseDraft(e.target.value);
+                  setAssignErr('');
+                }}
+              >
+                <option value="">Select existing course</option>
+                {knownCourses.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-            <div>
-              <label style={{ fontSize: 12 }}>Available Students</label>
-              <select className={styles.mCtrl} value={studentToAssign} onChange={(e) => { setStudentToAssign(e.target.value); setAssignErr(''); }}>
-                <option value="">Select student...</option>
-                {availableStudents.map(s => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
-              </select>
+
+            <div className={styles.enrollField}>
+              <label className={styles.enrollLabel}>Course Name</label>
+              <input
+                className={styles.mCtrl}
+                value={courseDraft}
+                onChange={(e) => {
+                  setCourseDraft(e.target.value);
+                  setAssignErr('');
+                }}
+                placeholder="e.g. FSAD"
+              />
             </div>
-            <button className={styles.addBtn} onClick={handleAssignStudent}>Assign Student</button>
+
+            <div className={styles.enrollField}>
+              <label className={styles.enrollLabel}>Semester</label>
+              <input
+                className={styles.mCtrl}
+                value={selectedSemester}
+                onChange={(e) => {
+                  setSelectedSemester(e.target.value);
+                  setForm(p => ({ ...p, semester: e.target.value }));
+                  setAssignErr('');
+                }}
+                placeholder="e.g. Spring 2026"
+              />
+            </div>
+
+            <button className={styles.addBtn} onClick={applyCourseSelection}>Create / Select Course</button>
           </div>
+
+          <div className={styles.enrollmentInfoRow}>
+            <div className={styles.enrollmentInfo}>
+              Active course: <strong>{selectedCourse || 'Not selected'}</strong>
+            </div>
+            <div className={styles.enrollmentInfo}>
+              Students in course: <strong>{studentsInCourse.length}</strong>
+            </div>
+          </div>
+
+          <div className={styles.candidateList}>
+            {enrollmentCandidates.length === 0 && (
+              <div className={styles.emptyText}>No students available to add for this course.</div>
+            )}
+            {enrollmentCandidates.map((student) => (
+              <label key={student.id} className={styles.candidateItem}>
+                <input
+                  type="checkbox"
+                  checked={selectedEnrollmentIds.includes(student.id)}
+                  onChange={() => toggleEnrollment(student.id)}
+                />
+                <span className={styles.candidateName}>{student.name}</span>
+                <span className={styles.candidateMeta}>
+                  {student.candidateType === 'new' ? 'Available' : `Move from ${student.team || 'Unassigned'}`}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          <button className={styles.addBtn} onClick={handleAssignStudents} disabled={enrolling}>
+            {enrolling ? 'Adding Students...' : 'Add Selected Students To Course'}
+          </button>
           {assignErr && <div className={styles.mErr}>{assignErr}</div>}
         </div>
       </Card>
@@ -173,10 +302,27 @@ export default function InstructorAssignments() {
             <div className={styles.modalContent}>
               <div className={styles.mField}>
                 <label className={styles.mLabel}>Course</label>
-                <select className={styles.mCtrl} value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)}>
-                  <option value="">{settings.courseName || 'Set course in settings'}</option>
-                  {[...new Set(students.map(s => s.team).filter(Boolean))].map(c => <option key={c} value={c}>{c}</option>)}
+                <select
+                  className={styles.mCtrl}
+                  value={selectedCourse}
+                  onChange={e => {
+                    setSelectedCourse(e.target.value);
+                    setErr('');
+                  }}
+                >
+                  <option value="">Select a course</option>
+                  {knownCourses.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
+              </div>
+
+              <div className={styles.mField}>
+                <label className={styles.mLabel}>Semester</label>
+                <input
+                  className={styles.mCtrl}
+                  value={form.semester}
+                  onChange={e => set('semester', e.target.value)}
+                  placeholder="e.g. Spring 2026"
+                />
               </div>
 
               <div className={styles.mField}>
@@ -211,11 +357,6 @@ export default function InstructorAssignments() {
               <div className={styles.mField}>
                 <label className={styles.mLabel}>Due Date</label>
                 <input className={styles.mCtrl} type="date" value={form.due} onChange={e => set('due', e.target.value)} />
-              </div>
-
-              <div className={styles.mField}>
-                <label className={styles.mLabel}>Semester</label>
-                <input className={styles.mCtrl} value={form.semester} onChange={e => set('semester', e.target.value)} placeholder="e.g. Spring 2026" />
               </div>
 
               {err && <div className={styles.mErr}>{err}</div>}

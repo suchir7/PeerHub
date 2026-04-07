@@ -17,6 +17,7 @@ export default function InstructorSettings() {
   const [editing, setEditing]   = useState(null);
   const [editVal, setEditVal]   = useState('');
   const [saving, setSaving]     = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   useEffect(() => {
     apiGetSettings().then(setSettings).catch(console.error);
@@ -25,6 +26,7 @@ export default function InstructorSettings() {
   const startEdit = (key, value) => {
     setEditing(key);
     setEditVal(value);
+    setSaveError('');
   };
 
   const saveEdit = async () => {
@@ -35,7 +37,7 @@ export default function InstructorSettings() {
       setSettings(updated);
       setEditing(null);
     } catch (err) {
-      console.error('Save error:', err);
+      setSaveError(err.message || 'Failed to save setting');
     }
     setSaving(false);
   };
@@ -43,6 +45,7 @@ export default function InstructorSettings() {
   const cancelEdit = () => {
     setEditing(null);
     setEditVal('');
+    setSaveError('');
   };
 
   return (
@@ -50,6 +53,7 @@ export default function InstructorSettings() {
       <Card>
         <CardHeader title="Course Settings" />
         <div className={styles.body}>
+          {saveError && <div className={styles.errorBox}>{saveError}</div>}
           {SETTING_KEYS.map(s => (
             <div key={s.key} className={styles.row}>
               <div className={styles.key}>{s.label}</div>

@@ -13,6 +13,12 @@
   display: flex; align-items: center; gap: 7px;
 }
 .addBtn:hover { background: var(--orange-soft); transform: translateY(-1px); box-shadow: var(--shadow-or); }
+.addBtn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
 .tableWrap { padding: 6px 22px 22px; overflow-x: auto; }
 .enrollmentWrap { padding: 16px 22px 22px; }
@@ -54,6 +60,11 @@
 .table tr:hover td { background: var(--cream); }
 .tdBold  { font-weight: 700; }
 .tdMuted { color: var(--ink-70); }
+.emptyRow {
+  text-align: center;
+  color: var(--ink-40);
+  padding: 18px 0;
+}
 
 /* Animations */
 @keyframes fadeIn {

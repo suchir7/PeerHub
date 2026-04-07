@@ -79,10 +79,10 @@ export default function InstructorOverview() {
         </Card>
 
         <Card>
-          <CardHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><IconTrophy size={18} color="var(--orange)" /> Top Performers</span>} />
+          <CardHeader title={<span className={styles.leaderTitle}><IconTrophy size={18} color="var(--orange)" /> Top Performers</span>} />
           <div className={styles.leaderBody}>
             {rankedStudents.map((s, i) => (
-              <div key={s.name} className={styles.leaderRow}>
+              <div key={s.id || s.name} className={styles.leaderRow}>
                 <div
                   className={styles.rank}
                   style={{ background: RANK_COLORS[i % RANK_COLORS.length], color: RANK_TEXT[i % RANK_TEXT.length] }}
@@ -97,6 +97,7 @@ export default function InstructorOverview() {
                 <div className={styles.leaderScore}>{s.score}</div>
               </div>
             ))}
+            {rankedStudents.length === 0 && <div className={styles.emptyState}>No students enrolled yet.</div>}
           </div>
         </Card>
       </div>

@@ -8,6 +8,7 @@ import {
   apiGetProjects,
   apiCreateAssignment,
   apiGetSettings,
+  apiUpdateSettings,
 } from '../../api/client';
 import { Card, StatusBadge } from '../../components/UI';
 import styles from './InstructorAssignments.module.css';
@@ -23,6 +24,7 @@ export default function InstructorAssignments() {
   const [courseDraft, setCourseDraft] = useState('');
   const [selectedEnrollmentIds, setSelectedEnrollmentIds] = useState([]);
   const [enrolling, setEnrolling] = useState(false);
+  const [savingCourse, setSavingCourse] = useState(false);
   const [showModal, setShow]  = useState(false);
   const [form, setForm]       = useState({ reviewerStudentId: '', reviewingStudentId: '', projectId: '', project: '', due: '', semester: '' });
   const [err, setErr]         = useState('');
@@ -64,6 +66,9 @@ export default function InstructorAssignments() {
 
   const studentsInCourse = students.filter(s => selectedCourse && s.team === selectedCourse);
   const projectsInCourse = projects.filter(p => !selectedCourse || p.courseName === selectedCourse);
+  const assignmentsInCourse = selectedCourse
+    ? list.filter(a => (a.courseName || '') === selectedCourse)
+    : list;
   const availableById = new Set(availableStudents.map(s => s.id));
   const reassignmentCandidates = students.filter(s => selectedCourse && s.team !== selectedCourse);
   const enrollmentCandidates = [
@@ -82,7 +87,7 @@ export default function InstructorAssignments() {
     ));
   };
 
-  const applyCourseSelection = () => {
+  const applyCourseSelection = async () => {
     const nextCourse = courseDraft.trim();
     const nextSemester = selectedSemester.trim();
 
@@ -95,11 +100,23 @@ export default function InstructorAssignments() {
       return;
     }
 
-    setSelectedCourse(nextCourse);
-    setSelectedSemester(nextSemester);
-    setForm(p => ({ ...p, semester: nextSemester }));
-    setSelectedEnrollmentIds([]);
-    setAssignErr('');
+    try {
+      setSavingCourse(true);
+      const updated = await apiUpdateSettings({
+        courseName: nextCourse,
+        semester: nextSemester,
+      });
+      setSettings(updated || {});
+      setSelectedCourse(nextCourse);
+      setSelectedSemester(nextSemester);
+      setForm(p => ({ ...p, semester: nextSemester }));
+      setSelectedEnrollmentIds([]);
+      setAssignErr('');
+    } catch (error) {
+      setAssignErr(error.message || 'Failed to save course settings');
+    } finally {
+      setSavingCourse(false);
+    }
   };
 
   const handleCreate = async () => {
@@ -176,7 +193,14 @@ export default function InstructorAssignments() {
           <h2 className={styles.pageTitle}>Peer Review Assignments</h2>
           <p className={styles.pageSub}>Manage reviewer pairings and submission deadlines</p>
         </div>
-        <button className={styles.addBtn} onClick={() => setShow(true)}>+ New Assignment</button>
+        <button
+          className={styles.addBtn}
+          onClick={() => setShow(true)}
+          disabled={!selectedCourse || studentsInCourse.length < 2}
+          title={!selectedCourse ? 'Select a course first' : (studentsInCourse.length < 2 ? 'At least 2 students are required' : 'Create assignment')}
+        >
+          + New Assignment
+        </button>
       </div>
 
       <Card>
@@ -226,7 +250,9 @@ export default function InstructorAssignments() {
               />
             </div>
 
-            <button className={styles.addBtn} onClick={applyCourseSelection}>Create / Select Course</button>
+            <button className={styles.addBtn} onClick={applyCourseSelection} disabled={savingCourse}>
+              {savingCourse ? 'Saving...' : 'Create / Select Course'}
+            </button>
           </div>
 
           <div className={styles.enrollmentInfoRow}>
@@ -257,7 +283,7 @@ export default function InstructorAssignments() {
             ))}
           </div>
 
-          <button className={styles.addBtn} onClick={handleAssignStudents} disabled={enrolling}>
+            <button className={styles.addBtn} onClick={handleAssignStudents} disabled={enrolling || !selectedCourse}>
             {enrolling ? 'Adding Students...' : 'Add Selected Students To Course'}
           </button>
           {assignErr && <div className={styles.mErr}>{assignErr}</div>}
@@ -277,7 +303,7 @@ export default function InstructorAssignments() {
               </tr>
             </thead>
             <tbody>
-              {list.map((a, i) => (
+              {assignmentsInCourse.map((a, i) => (
                 <tr key={a.id || i}>
                   <td className={styles.tdBold}>{a.reviewer}</td>
                   <td className={styles.tdMuted}>{a.reviewing}</td>
@@ -286,6 +312,15 @@ export default function InstructorAssignments() {
                   <td><StatusBadge status={a.status} /></td>
                 </tr>
               ))}
+              {assignmentsInCourse.length === 0 && (
+                <tr>
+                  <td className={styles.emptyRow} colSpan={5}>
+                    {selectedCourse
+                      ? `No assignments found for ${selectedCourse}.`
+                      : 'No assignments created yet.'}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -359,12 +394,16 @@ export default function InstructorAssignments() {
                 <input className={styles.mCtrl} type="date" value={form.due} onChange={e => set('due', e.target.value)} />
               </div>
 
+              {studentsInCourse.length < 2 && (
+                <div className={styles.mErr}>At least 2 students must be enrolled in this course before creating assignments.</div>
+              )}
+
               {err && <div className={styles.mErr}>{err}</div>}
             </div>
 
             <div className={styles.mActions}>
               <button className={styles.mCancel} onClick={() => setShow(false)}>Cancel</button>
-              <button className={styles.mCreate} onClick={handleCreate}>Create Assignment</button>
+              <button className={styles.mCreate} onClick={handleCreate} disabled={studentsInCourse.length < 2}>Create Assignment</button>
             </div>
           </div>
         </div>,

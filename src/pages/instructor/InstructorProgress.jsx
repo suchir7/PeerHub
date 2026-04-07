@@ -13,6 +13,8 @@ export default function InstructorProgress() {
     apiGetStudents().then(setStudents).catch(console.error);
   }, []);
 
+  const rankedStudents = [...students].sort((a, b) => (b.score || 0) - (a.score || 0));
+
   return (
     <div className="page-enter">
       <Card>
@@ -30,10 +32,10 @@ export default function InstructorProgress() {
               </tr>
             </thead>
             <tbody>
-              {students.map((s, i) => (
-                <tr key={s.name}>
+              {rankedStudents.map((s, i) => (
+                <tr key={s.id || s.name}>
                   <td>
-                    <div className={styles.rank} style={{ background: RANK_COLORS[i], color: RANK_TEXT[i] }}>
+                    <div className={styles.rank} style={{ background: RANK_COLORS[i % RANK_COLORS.length], color: RANK_TEXT[i % RANK_TEXT.length] }}>
                       {i + 1}
                     </div>
                   </td>

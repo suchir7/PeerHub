@@ -2,6 +2,17 @@
   padding: 8px 24px 24px;
 }
 
+.errorBox {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-left: 3px solid #dc2626;
+  border-radius: 6px;
+  color: #991b1b;
+  font-size: .82rem;
+}
+
 .row {
   display: flex;
   align-items: center;

@@ -34,6 +34,7 @@
 .tdMuted { color: var(--ink-40); }
 
 .leaderBody { padding: 12px 22px 20px; }
+.leaderTitle { display: inline-flex; align-items: center; gap: 8px; }
 .leaderRow { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); }
 .leaderRow:last-child { border-bottom: none; }
 
@@ -47,3 +48,4 @@
 .leaderName { font-size: .85rem; font-weight: 700; color: var(--ink); }
 .leaderTeam { font-size: .71rem; color: var(--ink-40); margin-top: 1px; }
 .leaderScore { font-family: var(--display); font-size: 1.2rem; font-weight: 900; color: var(--orange); }
+.emptyState { color: var(--ink-40); font-size: .85rem; padding: 8px 0; }

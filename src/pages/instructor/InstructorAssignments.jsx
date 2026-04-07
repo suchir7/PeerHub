@@ -5,6 +5,7 @@ import {
   apiGetStudents,
   apiGetAvailableStudents,
   apiAssignStudent,
+  apiUnassignStudent,
   apiCreateAssignment,
   apiGetSettings,
   apiUpdateSettings,
@@ -24,7 +25,9 @@ export default function InstructorAssignments() {
   const [selectedSemester, setSelectedSemester] = useState('');
   const [courseDraft, setCourseDraft] = useState('');
   const [selectedEnrollmentIds, setSelectedEnrollmentIds] = useState([]);
+  const [selectedRemovalIds, setSelectedRemovalIds] = useState([]);
   const [enrolling, setEnrolling] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [savingCourse, setSavingCourse] = useState(false);
   const [showModal, setShow]  = useState(false);
   const [form, setForm]       = useState({ reviewerStudentId: '', reviewingStudentId: '', projectId: '', project: '', due: '', semester: '' });
@@ -85,6 +88,15 @@ export default function InstructorAssignments() {
     ));
   };
 
+  const toggleRemoval = (studentId) => {
+    setAssignErr('');
+    setSelectedRemovalIds((prev) => (
+      prev.includes(studentId)
+        ? prev.filter(id => id !== studentId)
+        : [...prev, studentId]
+    ));
+  };
+
   const applyCourseSelection = async () => {
     const nextCourse = courseDraft.trim();
     const nextSemester = selectedSemester.trim();
@@ -109,6 +121,7 @@ export default function InstructorAssignments() {
       setSelectedSemester(nextSemester);
       setForm(p => ({ ...p, semester: nextSemester }));
       setSelectedEnrollmentIds([]);
+      setSelectedRemovalIds([]);
       setAssignErr('');
     } catch (error) {
       setAssignErr(error.message || 'Failed to save course settings');
@@ -189,11 +202,36 @@ export default function InstructorAssignments() {
       );
       setAssignErr('');
       setSelectedEnrollmentIds([]);
+      setSelectedRemovalIds([]);
       loadAll();
     } catch (error) {
       setAssignErr(error.message || 'Failed to assign student');
     } finally {
       setEnrolling(false);
+    }
+  };
+
+  const handleRemoveStudents = async () => {
+    if (!selectedCourse.trim()) {
+      setAssignErr('Select a course first.');
+      return;
+    }
+    if (selectedRemovalIds.length === 0) {
+      setAssignErr('Select at least one student to remove from this course.');
+      return;
+    }
+
+    try {
+      setRemoving(true);
+      await Promise.all(selectedRemovalIds.map((studentId) => apiUnassignStudent(Number(studentId))));
+      setAssignErr('');
+      setSelectedRemovalIds([]);
+      setSelectedEnrollmentIds([]);
+      loadAll();
+    } catch (error) {
+      setAssignErr(error.message || 'Failed to remove student(s)');
+    } finally {
+      setRemoving(false);
     }
   };
 
@@ -275,28 +313,56 @@ export default function InstructorAssignments() {
             </div>
           </div>
 
-          <div className={styles.candidateList}>
-            {enrollmentCandidates.length === 0 && (
-              <div className={styles.emptyText}>No students available to add for this course.</div>
-            )}
-            {enrollmentCandidates.map((student) => (
-              <label key={student.id} className={styles.candidateItem}>
-                <input
-                  type="checkbox"
-                  checked={selectedEnrollmentIds.includes(student.id)}
-                  onChange={() => toggleEnrollment(student.id)}
-                />
-                <span className={styles.candidateName}>{student.name}</span>
-                <span className={styles.candidateMeta}>
-                  {student.candidateType === 'new' ? 'Available' : `Move from ${student.team || 'Unassigned'}`}
-                </span>
-              </label>
-            ))}
+          <div className={styles.studentManagerGrid}>
+            <div className={styles.managerPanel}>
+              <div className={styles.panelTitle}>Add Students To {selectedCourse || 'Course'}</div>
+              <div className={styles.candidateList}>
+                {enrollmentCandidates.length === 0 && (
+                  <div className={styles.emptyText}>No students available to add for this course.</div>
+                )}
+                {enrollmentCandidates.map((student) => (
+                  <label key={`add-${student.id}`} className={styles.candidateItem}>
+                    <input
+                      type="checkbox"
+                      checked={selectedEnrollmentIds.includes(student.id)}
+                      onChange={() => toggleEnrollment(student.id)}
+                    />
+                    <span className={styles.candidateName}>{student.name}</span>
+                    <span className={styles.candidateMeta}>
+                      {student.candidateType === 'new' ? 'Available' : `Move from ${student.team || 'Unassigned'}`}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <button className={styles.addBtn} onClick={handleAssignStudents} disabled={enrolling || !selectedCourse}>
+                {enrolling ? 'Adding Students...' : 'Add Selected Students'}
+              </button>
+            </div>
+
+            <div className={styles.managerPanel}>
+              <div className={styles.panelTitle}>Remove Students From {selectedCourse || 'Course'}</div>
+              <div className={styles.candidateList}>
+                {studentsInCourse.length === 0 && (
+                  <div className={styles.emptyText}>No students currently enrolled in this course.</div>
+                )}
+                {studentsInCourse.map((student) => (
+                  <label key={`remove-${student.id}`} className={styles.candidateItem}>
+                    <input
+                      type="checkbox"
+                      checked={selectedRemovalIds.includes(student.id)}
+                      onChange={() => toggleRemoval(student.id)}
+                    />
+                    <span className={styles.candidateName}>{student.name}</span>
+                    <span className={styles.candidateMeta}>{student.email || student.team}</span>
+                  </label>
+                ))}
+              </div>
+              <button className={styles.removeBtn} onClick={handleRemoveStudents} disabled={removing || !selectedCourse}>
+                {removing ? 'Removing Students...' : 'Remove Selected Students'}
+              </button>
+            </div>
           </div>
 
-            <button className={styles.addBtn} onClick={handleAssignStudents} disabled={enrolling || !selectedCourse}>
-            {enrolling ? 'Adding Students...' : 'Add Selected Students To Course'}
-          </button>
           {assignErr && <div className={styles.mErr}>{assignErr}</div>}
         </div>
       </Card>

@@ -34,6 +34,24 @@
 .enrollLabel { display: block; font-size: 12px; color: var(--ink-70); margin-bottom: 6px; }
 .enrollmentInfoRow { display: flex; gap: 18px; margin-bottom: 10px; }
 .enrollmentInfo { font-size: .82rem; color: var(--ink-70); }
+.studentManagerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.managerPanel {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--white);
+}
+.panelTitle {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--ink-70);
+  margin-bottom: 8px;
+}
 .candidateList {
   border: 1px solid var(--rule);
   border-radius: 10px;
@@ -54,6 +72,25 @@
 .candidateName { font-weight: 600; color: var(--ink); }
 .candidateMeta { margin-left: auto; font-size: .78rem; color: var(--ink-40); }
 .emptyText { font-size: .82rem; color: var(--ink-40); padding: 8px; }
+.removeBtn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #fff;
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, .35);
+  border-radius: 9px;
+  font-size: .84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+.removeBtn:hover {
+  background: rgba(220, 38, 38, .06);
+}
+.removeBtn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
 .table { width: 100%; border-collapse: collapse; }
 .table th { font-size: .64rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-40); font-weight: 700; padding: 0 0 12px; text-align: left; }
 .table td { padding: 12px 0; border-top: 1px solid var(--rule); font-size: .855rem; vertical-align: middle; }
@@ -288,6 +325,9 @@
 
 @media (max-width: 700px) {
   .enrollmentGrid {
+    grid-template-columns: 1fr;
+  }
+  .studentManagerGrid {
     grid-template-columns: 1fr;
   }
   .enrollmentInfoRow {

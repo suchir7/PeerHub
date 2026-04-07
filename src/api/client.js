@@ -151,6 +151,12 @@ export async function apiAssignStudent(studentId, payload) {
   });
 }
 
+export async function apiUnassignStudent(studentId) {
+  return request(`/students/${studentId}/unassign`, {
+    method: 'POST',
+  });
+}
+
 export async function apiGetStudentProfile() {
   return request('/students/me-profile');
 }

@@ -12,23 +12,27 @@ export default function StudentFeedback() {
   const [score, setScore]           = useState('');
   const [pending, setPending]       = useState([]);
   const [project, setProject]       = useState('');
+  const [assignmentId, setAssignmentId] = useState(null);
   const [submitted, setSubmitted]   = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     apiGetPendingReviews().then(data => {
       setPending(data);
-      if (data.length > 0) setProject(data[0].title);
+      if (data.length > 0) {
+        setProject(data[0].title);
+        setAssignmentId(data[0].id);
+      }
     }).catch(console.error);
   }, []);
 
-  const canSubmit = comment.trim() && score && Object.values(ratings).every(v => v > 0) && !submitting;
+  const canSubmit = assignmentId && comment.trim() && score && Object.values(ratings).every(v => v > 0) && !submitting;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
-      await apiSubmitReview({ project, score, comment, ratings });
+      await apiSubmitReview({ assignmentId, project, score, comment, ratings });
       setSubmitted(true);
     } catch (err) {
       console.error('Submit error:', err);
@@ -69,8 +73,16 @@ export default function StudentFeedback() {
           <div className={styles.body}>
             <div className={styles.field}>
               <label className={styles.label}>Project</label>
-              <select className={styles.ctrl} value={project} onChange={e => setProject(e.target.value)}>
-                {pending.map(p => <option key={p.id}>{p.title}</option>)}
+              <select
+                className={styles.ctrl}
+                value={assignmentId ?? ''}
+                onChange={e => {
+                  const selected = pending.find(p => String(p.id) === e.target.value);
+                  setAssignmentId(selected ? selected.id : null);
+                  setProject(selected ? selected.title : '');
+                }}
+              >
+                {pending.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
               </select>
             </div>
 

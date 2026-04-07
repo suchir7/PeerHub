@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { apiGetProjects, apiGetReviews, apiGetPendingReviews } from '../../api/client';
+import { apiGetProjects, apiGetReviews, apiGetPendingReviews, apiGetStudentProfile } from '../../api/client';
 import { StatCard, Card, CardHeader, ProgressBar, StatusBadge, Avatar } from '../../components/UI';
 import { IconFolder, IconEdit, IconStar, IconClock, IconClipboard, IconWave } from '../../components/Icons';
 import styles from './StudentDashboard.module.css';
@@ -12,11 +12,13 @@ export default function StudentDashboard() {
   const [projects, setProjects] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [pending, setPending] = useState([]);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     apiGetProjects().then(setProjects).catch(console.error);
     apiGetReviews().then(setReviews).catch(console.error);
     apiGetPendingReviews().then(setPending).catch(console.error);
+    apiGetStudentProfile().then(setProfile).catch(console.error);
   }, []);
 
   return (
@@ -29,6 +31,9 @@ export default function StudentDashboard() {
             Good morning, {firstName}. <IconWave size={22} color="var(--orange)" />
           </div>
           <div className={styles.bannerSub}>You have {pending.length} pending peer reviews this week — keep the momentum going.</div>
+          <div className={styles.bannerSub}>
+            Instructor: {profile?.instructorName || 'Not assigned'} · Course: {profile?.courseName || 'Not assigned'} · Semester: {profile?.semester || 'Not assigned'}
+          </div>
         </div>
         <div className={styles.bannerDecor}><IconBookOpen size={48} color="var(--orange-soft)" /></div>
       </div>

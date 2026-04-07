@@ -112,6 +112,21 @@ export async function apiGetStudents() {
   return request('/students');
 }
 
+export async function apiGetAvailableStudents() {
+  return request('/students/available');
+}
+
+export async function apiAssignStudent(studentId, payload) {
+  return request(`/students/${studentId}/assign`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiGetStudentProfile() {
+  return request('/students/me-profile');
+}
+
 // Assignments
 export async function apiGetAssignments() {
   return request('/assignments');

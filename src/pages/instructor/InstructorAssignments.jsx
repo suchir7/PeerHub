@@ -66,6 +66,12 @@ export default function InstructorAssignments() {
 
   const studentsInCourse = students.filter(s => selectedCourse && s.team === selectedCourse);
   const projectsInCourse = projects.filter(p => !selectedCourse || p.courseName === selectedCourse);
+  const projectsForReviewingStudent = projectsInCourse.filter((p) => {
+    if (!form.reviewingStudentId) {
+      return false;
+    }
+    return Number(p.ownerStudentId) === Number(form.reviewingStudentId);
+  });
   const assignmentsInCourse = selectedCourse
     ? list.filter(a => (a.courseName || '') === selectedCourse)
     : list;
@@ -370,17 +376,25 @@ export default function InstructorAssignments() {
 
               <div className={styles.mField}>
                 <label className={styles.mLabel}>Reviewing</label>
-                <select className={styles.mCtrl} value={form.reviewingStudentId} onChange={e => set('reviewingStudentId', e.target.value)}>
+                <select
+                  className={styles.mCtrl}
+                  value={form.reviewingStudentId}
+                  onChange={e => {
+                    const value = e.target.value;
+                    set('reviewingStudentId', value);
+                    set('projectId', '');
+                  }}
+                >
                   <option value="">Select…</option>
                   {studentsInCourse.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
 
               <div className={styles.mField}>
-                <label className={styles.mLabel}>Existing Project (optional)</label>
+                <label className={styles.mLabel}>Existing Project of Reviewing Student (optional)</label>
                 <select className={styles.mCtrl} value={form.projectId} onChange={e => set('projectId', e.target.value)}>
-                  <option value="">Select…</option>
-                  {projectsInCourse.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  <option value="">{form.reviewingStudentId ? 'Select project…' : 'Select reviewing student first'}</option>
+                  {projectsForReviewingStudent.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
 

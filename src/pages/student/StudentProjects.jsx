@@ -96,52 +96,54 @@ export default function StudentProjects() {
               <button className={styles.closeBtn} onClick={() => setShowModal(false)} title="Close">✕</button>
             </div>
 
-            <div className={styles.field}>
-              <label className={styles.label}>Project Name <span className={styles.required}>*</span></label>
-              <input 
-                ref={nameInputRef}
-                className={styles.input} 
-                placeholder="Enter project name"
-                value={form.name} 
-                onChange={e => setForm(f => ({ ...f, name: e.target.value }))} 
-                onKeyPress={e => e.key === 'Enter' && !creating && createProject()}
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label className={styles.label}>Description</label>
-              <textarea 
-                className={styles.textarea} 
-                placeholder="Add project description (optional)"
-                value={form.desc} 
-                onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} 
-              />
-            </div>
-
-            <div className={styles.row2}>
+            <div className={styles.modalContent}>
               <div className={styles.field}>
-                <label className={styles.label}>Due Date <span className={styles.required}>*</span></label>
+                <label className={styles.label}>Project Name <span className={styles.required}>*</span></label>
                 <input 
-                  type="date" 
+                  ref={nameInputRef}
                   className={styles.input} 
-                  value={form.due} 
-                  onChange={e => setForm(f => ({ ...f, due: e.target.value }))} 
+                  placeholder="Enter project name"
+                  value={form.name} 
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))} 
+                  onKeyPress={e => e.key === 'Enter' && !creating && createProject()}
                 />
               </div>
+
               <div className={styles.field}>
-                <label className={styles.label}>Team Members</label>
-                <input 
-                  type="number" 
-                  min="1" 
-                  className={styles.input} 
-                  placeholder="1"
-                  value={form.members} 
-                  onChange={e => setForm(f => ({ ...f, members: e.target.value }))} 
+                <label className={styles.label}>Description</label>
+                <textarea 
+                  className={styles.textarea} 
+                  placeholder="Add project description (optional)"
+                  value={form.desc} 
+                  onChange={e => setForm(f => ({ ...f, desc: e.target.value }))} 
                 />
               </div>
-            </div>
 
-            {error && <div className={styles.error}>{error}</div>}
+              <div className={styles.row2}>
+                <div className={styles.field}>
+                  <label className={styles.label}>Due Date <span className={styles.required}>*</span></label>
+                  <input 
+                    type="date" 
+                    className={styles.input} 
+                    value={form.due} 
+                    onChange={e => setForm(f => ({ ...f, due: e.target.value }))} 
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label}>Team Members</label>
+                  <input 
+                    type="number" 
+                    min="1" 
+                    className={styles.input} 
+                    placeholder="1"
+                    value={form.members} 
+                    onChange={e => setForm(f => ({ ...f, members: e.target.value }))} 
+                  />
+                </div>
+              </div>
+
+              {error && <div className={styles.error}>{error}</div>}
+            </div>
 
             <div className={styles.actions}>
               <button className={styles.cancelBtn} onClick={() => setShowModal(false)}>Cancel</button>

@@ -1,15 +1,10 @@
 import { Outlet, useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import Topbar from '../../components/Topbar';
 import { IconDashboard, IconFolder, IconStar, IconMessageSquare } from '../../components/Icons';
+import { apiGetPendingReviews, apiGetReviews } from '../../api/client';
 import styles from './StudentLayout.module.css';
-
-const NAV = [
-  { path: '/student/dashboard', label: 'Dashboard',        icon: <IconDashboard size={16} /> },
-  { path: '/student/projects',  label: 'My Projects',      icon: <IconFolder size={16} /> },
-  { path: '/student/reviews',   label: 'Reviews Received', icon: <IconStar size={16} />, badge: 3 },
-  { path: '/student/feedback',  label: 'Give Feedback',    icon: <IconMessageSquare size={16} />, badge: 2 },
-];
 
 const TITLES = {
   '/student/dashboard': 'Dashboard',
@@ -20,11 +15,44 @@ const TITLES = {
 
 export default function StudentLayout() {
   const { pathname } = useLocation();
+  const [pending, setPending] = useState([]);
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    apiGetPendingReviews().then(setPending).catch(() => setPending([]));
+    apiGetReviews().then(setReviews).catch(() => setReviews([]));
+  }, [pathname]);
+
+  const navItems = useMemo(() => [
+    { path: '/student/dashboard', label: 'Dashboard',        icon: <IconDashboard size={16} /> },
+    { path: '/student/projects',  label: 'My Projects',      icon: <IconFolder size={16} /> },
+    { path: '/student/reviews',   label: 'Reviews Received', icon: <IconStar size={16} />, badge: reviews.length || undefined },
+    { path: '/student/feedback',  label: 'Give Feedback',    icon: <IconMessageSquare size={16} />, badge: pending.length || undefined },
+  ], [reviews.length, pending.length]);
+
+  const notifications = useMemo(() => {
+    const pendingNotifs = pending.slice(0, 5).map(p => ({
+      id: `pending-${p.id}`,
+      title: `Review due: ${p.title}`,
+      meta: p.due,
+    }));
+    const reviewNotifs = reviews.slice(0, 3).map(r => ({
+      id: `review-${r.id}`,
+      title: `New review received for ${r.project}`,
+      meta: `${r.reviewer} · Score ${r.score}`,
+    }));
+    return [...pendingNotifs, ...reviewNotifs];
+  }, [pending, reviews]);
+
   return (
     <div className={styles.shell}>
-      <Sidebar navItems={NAV} variant="light" />
+      <Sidebar navItems={navItems} variant="light" />
       <div className={styles.main}>
-        <Topbar title={TITLES[pathname] || 'Dashboard'} />
+        <Topbar
+          title={TITLES[pathname] || 'Dashboard'}
+          notifications={notifications}
+          storageKey="peerhub_student_notifs"
+        />
         <main className={styles.content}>
           <Outlet />
         </main>

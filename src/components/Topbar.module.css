@@ -26,6 +26,8 @@
   gap: 12px;
 }
 
+.notifWrap { position: relative; }
+
 .date {
   font-size: .75rem;
   color: var(--ink-40);
@@ -51,9 +53,83 @@
 
 .notifDot {
   position: absolute;
-  top: 6px; right: 6px;
-  width: 7px; height: 7px;
-  border-radius: 50%;
+  top: -6px; right: -7px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
   background: var(--orange);
+  color: var(--white);
   border: 1.5px solid var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .62rem;
+  font-weight: 800;
+  padding: 0 4px;
+}
+
+.panel {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  width: 320px;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  z-index: 60;
+}
+
+.panelHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+
+.markBtn {
+  border: none;
+  background: transparent;
+  color: var(--orange);
+  font-size: .7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.panelBody {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.empty {
+  padding: 14px 12px;
+  font-size: .74rem;
+  color: var(--ink-40);
+}
+
+.item {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--orange-tint);
+}
+
+.item:last-child { border-bottom: none; }
+
+.itemRead { background: var(--white); }
+
+.itemTitle {
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.itemMeta {
+  margin-top: 2px;
+  font-size: .7rem;
+  color: var(--ink-40);
 }

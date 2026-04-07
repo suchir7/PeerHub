@@ -91,6 +91,13 @@ export async function apiGetProject(id) {
   return request(`/projects/${id}`);
 }
 
+export async function apiCreateProject(projectData) {
+  return request('/projects', {
+    method: 'POST',
+    body: JSON.stringify(projectData),
+  });
+}
+
 // Reviews
 export async function apiGetReviews() {
   return request('/reviews');

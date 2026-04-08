@@ -10,6 +10,8 @@ import {
   apiGetSettings,
   apiUpdateSettings,
   apiGetProjectsForStudent,
+  apiUpdateAssignment,
+  apiDeleteAssignment,
 } from '../../api/client';
 import { Card, StatusBadge } from '../../components/UI';
 import styles from './InstructorAssignments.module.css';
@@ -30,6 +32,11 @@ export default function InstructorAssignments() {
   const [removing, setRemoving] = useState(false);
   const [savingCourse, setSavingCourse] = useState(false);
   const [showModal, setShow]  = useState(false);
+  const [editingAssignmentId, setEditingAssignmentId] = useState(null);
+  const [editingDue, setEditingDue] = useState('');
+  const [editingStatus, setEditingStatus] = useState('pending');
+  const [savingAssignment, setSavingAssignment] = useState(false);
+  const [deletingAssignmentId, setDeletingAssignmentId] = useState(null);
   const [form, setForm]       = useState({ reviewerStudentId: '', reviewingStudentId: '', projectId: '', project: '', due: '', semester: '' });
   const [err, setErr]         = useState('');
   const [assignErr, setAssignErr] = useState('');
@@ -173,6 +180,51 @@ export default function InstructorAssignments() {
       setForm({ reviewerStudentId: '', reviewingStudentId: '', projectId: '', project: '', due: '', semester: selectedSemester || settings?.semester || '' });
     } catch (error) {
       setErr(error.message || 'Failed to create assignment');
+    }
+  };
+
+  const startEditAssignment = (assignment) => {
+    setEditingAssignmentId(assignment.id);
+    setEditingDue(assignment.due || '');
+    setEditingStatus(String(assignment.status || 'pending').toLowerCase());
+  };
+
+  const cancelEditAssignment = () => {
+    setEditingAssignmentId(null);
+    setEditingDue('');
+    setEditingStatus('pending');
+  };
+
+  const saveAssignment = async (id) => {
+    if (!editingDue) {
+      setAssignErr('Due date is required to update assignment.');
+      return;
+    }
+    try {
+      setSavingAssignment(true);
+      const updated = await apiUpdateAssignment(id, { due: editingDue, status: editingStatus });
+      setList(prev => prev.map(a => (a.id === id ? updated : a)));
+      setAssignErr('');
+      cancelEditAssignment();
+    } catch (error) {
+      setAssignErr(error.message || 'Failed to update assignment');
+    } finally {
+      setSavingAssignment(false);
+    }
+  };
+
+  const removeAssignment = async (id) => {
+    const confirmed = window.confirm('Delete this assignment?');
+    if (!confirmed) return;
+    try {
+      setDeletingAssignmentId(id);
+      await apiDeleteAssignment(id);
+      setList(prev => prev.filter(a => a.id !== id));
+      setAssignErr('');
+    } catch (error) {
+      setAssignErr(error.message || 'Failed to delete assignment');
+    } finally {
+      setDeletingAssignmentId(null);
     }
   };
 
@@ -377,6 +429,7 @@ export default function InstructorAssignments() {
                 <th>Project</th>
                 <th>Due Date</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -385,13 +438,50 @@ export default function InstructorAssignments() {
                   <td className={styles.tdBold}>{a.reviewer}</td>
                   <td className={styles.tdMuted}>{a.reviewing}</td>
                   <td>{a.project}</td>
-                  <td className={styles.tdMuted}>{a.due}</td>
-                  <td><StatusBadge status={a.status} /></td>
+                  <td className={styles.tdMuted}>
+                    {editingAssignmentId === a.id ? (
+                      <input
+                        type="date"
+                        className={styles.inlineInput}
+                        value={editingDue}
+                        onChange={(e) => setEditingDue(e.target.value)}
+                      />
+                    ) : a.due}
+                  </td>
+                  <td>
+                    {editingAssignmentId === a.id ? (
+                      <select className={styles.inlineSelect} value={editingStatus} onChange={(e) => setEditingStatus(e.target.value)}>
+                        <option value="pending">pending</option>
+                        <option value="done">done</option>
+                      </select>
+                    ) : <StatusBadge status={a.status} />}
+                  </td>
+                  <td>
+                    <div className={styles.actionRow}>
+                      {editingAssignmentId === a.id ? (
+                        <>
+                          <button className={styles.smallBtn} onClick={() => saveAssignment(a.id)} disabled={savingAssignment}>Save</button>
+                          <button className={styles.smallBtnGhost} onClick={cancelEditAssignment}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button className={styles.smallBtn} onClick={() => startEditAssignment(a)}>Edit</button>
+                          <button
+                            className={styles.smallBtnDanger}
+                            onClick={() => removeAssignment(a.id)}
+                            disabled={deletingAssignmentId === a.id}
+                          >
+                            {deletingAssignmentId === a.id ? 'Deleting...' : 'Delete'}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
               {assignmentsInCourse.length === 0 && (
                 <tr>
-                  <td className={styles.emptyRow} colSpan={5}>
+                  <td className={styles.emptyRow} colSpan={6}>
                     {selectedCourse
                       ? `No assignments found for ${selectedCourse}.`
                       : 'No assignments created yet.'}

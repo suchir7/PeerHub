@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { apiCreateProject, apiGetProjects } from '../../api/client';
+import { apiCreateProject, apiDeleteProject, apiGetProjects } from '../../api/client';
 import { StatusBadge, ProgressBar } from '../../components/UI';
 import styles from './StudentProjects.module.css';
 
@@ -11,6 +11,7 @@ export default function StudentProjects() {
   const [projects, setProjects] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ name: '', desc: '', due: '', members: 1 });
   const nameInputRef = useRef(null);
@@ -25,6 +26,20 @@ export default function StudentProjects() {
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(form.due);
+    if (Number.isNaN(dueDate.getTime()) || dueDate < today) {
+      setError('Due date must be today or a future date.');
+      return;
+    }
+
+    const members = Number(form.members);
+    if (!Number.isFinite(members) || members < 1 || members > 20) {
+      setError('Team members must be between 1 and 20.');
+      return;
+    }
+
     setCreating(true);
     setError('');
     try {
@@ -32,7 +47,7 @@ export default function StudentProjects() {
         name: form.name.trim(),
         desc: form.desc,
         due: form.due,
-        members: Number(form.members) || 1,
+        members,
         progress: 0,
         status: 'pending',
       });
@@ -51,6 +66,21 @@ export default function StudentProjects() {
       setTimeout(() => nameInputRef.current?.focus(), 50);
     }
   }, [showModal]);
+
+  const removeProject = async (id) => {
+    const confirmed = window.confirm('Delete this project? This cannot be undone.');
+    if (!confirmed) return;
+
+    setDeletingId(id);
+    try {
+      await apiDeleteProject(id);
+      setProjects(prev => prev.filter(p => p.id !== id));
+    } catch (e) {
+      setError(e.message || 'Failed to delete project');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="page-enter">
@@ -82,6 +112,18 @@ export default function StudentProjects() {
               <div className={styles.footer}>
                 <span className={styles.due}>Due {p.due}</span>
                 <StatusBadge status={p.status} />
+              </div>
+              <div className={styles.cardActions}>
+                <button
+                  className={styles.deleteBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeProject(p.id);
+                  }}
+                  disabled={deletingId === p.id}
+                >
+                  {deletingId === p.id ? 'Deleting...' : 'Delete'}
+                </button>
               </div>
               <ProgressBar value={p.progress} done={p.status === 'done'} />
             </div>

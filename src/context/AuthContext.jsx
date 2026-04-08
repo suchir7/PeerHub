@@ -23,6 +23,16 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  useEffect(() => {
+    const onExpired = () => {
+      localStorage.removeItem('peerhub_token');
+      setUser(null);
+      setError('Session expired. Please sign in again.');
+    };
+    window.addEventListener('peerhub:auth-expired', onExpired);
+    return () => window.removeEventListener('peerhub:auth-expired', onExpired);
+  }, []);
+
   const login = async (email, password, captchaToken) => {
     try {
       const data = await apiLogin(email, password, captchaToken);

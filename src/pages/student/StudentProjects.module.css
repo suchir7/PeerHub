@@ -64,12 +64,25 @@
 .cardBody { padding: 18px 22px 22px; }
 
 .statsRow { display: flex; gap: 22px; margin-bottom: 16px; }
-.stat {}
 .statVal { font-family: var(--display); font-size: 1.5rem; font-weight: 900; color: var(--orange); line-height: 1; }
 .statLbl { font-size: .66rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-40); margin-top: 3px; }
 
 .footer { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .due { font-size: .74rem; color: var(--ink-40); font-weight: 500; }
+.cardActions { margin-bottom: 10px; }
+.deleteBtn {
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  background: #fff;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.deleteBtn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
 
 @keyframes fadeIn {
   from {

@@ -11,6 +11,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading]   = useState(false);
   const [captcha, setCaptcha]   = useState('');
+  const [formError, setFormError] = useState('');
   const { login, loginWithGoogle, error, setError } = useAuth();
   const navigate = useNavigate();
   const recaptchaRef = useRef(null);
@@ -31,11 +32,22 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setFormError('Enter a valid email address.');
+      return;
+    }
+    if (password.length < 6) {
+      setFormError('Password must be at least 6 characters.');
+      return;
+    }
+
     if (!captcha) {
       setError('Please complete the CAPTCHA before signing in.');
       return;
     }
 
+    setFormError('');
     setLoading(true);
     try {
       const role = await login(email, password, captcha);
@@ -115,7 +127,7 @@ export default function Login() {
                 type="email"
                 placeholder="your@university.edu"
                 value={email}
-                onChange={e => { setEmail(e.target.value); setError(''); }}
+                onChange={e => { setEmail(e.target.value); setError(''); setFormError(''); }}
                 required
               />
             </div>
@@ -127,7 +139,7 @@ export default function Login() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={e => { setPassword(e.target.value); setError(''); }}
+                onChange={e => { setPassword(e.target.value); setError(''); setFormError(''); }}
                 required
               />
             </div>
@@ -143,6 +155,7 @@ export default function Login() {
               />
             </div>
 
+            {formError && <div className={styles.error}>{formError}</div>}
             {error && <div className={styles.error}>{error}</div>}
 
             <button className={styles.submitBtn} type="submit" disabled={loading}>

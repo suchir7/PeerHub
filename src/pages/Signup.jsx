@@ -12,6 +12,7 @@ export default function Signup() {
   const [role, setRole] = useState('student');
   const [captcha, setCaptcha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
   const recaptchaRef = useRef(null);
 
   const { signup, loginWithGoogle, error, setError } = useAuth();
@@ -33,11 +34,27 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+    if (name.trim().length < 2) {
+      setFormError('Name must be at least 2 characters.');
+      return;
+    }
+    if (!emailRegex.test(email.trim())) {
+      setFormError('Enter a valid email address.');
+      return;
+    }
+    if (!strongPassword.test(password)) {
+      setFormError('Password must be 8+ chars with uppercase, lowercase, number, and symbol.');
+      return;
+    }
+
     if (!captcha) {
       setError('Please complete the CAPTCHA before signing up.');
       return;
     }
 
+    setFormError('');
     setLoading(true);
     try {
       const nextRole = await signup({ name, email, password, role, captchaToken: captcha });
@@ -121,6 +138,7 @@ export default function Signup() {
                 onChange={(e) => {
                   setName(e.target.value);
                   setError('');
+                  setFormError('');
                 }}
                 required
               />
@@ -136,6 +154,7 @@ export default function Signup() {
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setError('');
+                  setFormError('');
                 }}
                 required
               />
@@ -151,6 +170,7 @@ export default function Signup() {
                 onChange={(e) => {
                   setPassword(e.target.value);
                   setError('');
+                  setFormError('');
                 }}
                 required
                 minLength={6}
@@ -188,6 +208,7 @@ export default function Signup() {
               />
             </div>
 
+            {formError && <div className={styles.error}>{formError}</div>}
             {error && <div className={styles.error}>{error}</div>}
 
             <button className={styles.submitBtn} type="submit" disabled={loading}>

@@ -97,6 +97,28 @@
 .table tr:hover td { background: var(--cream); }
 .tdBold  { font-weight: 700; }
 .tdMuted { color: var(--ink-70); }
+.actionRow { display: flex; gap: 6px; }
+.smallBtn,
+.smallBtnGhost,
+.smallBtnDanger {
+  border-radius: 7px;
+  font-size: .73rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border: 1px solid var(--rule);
+  background: #fff;
+}
+.smallBtn { color: var(--orange); border-color: rgba(232,98,42,.35); }
+.smallBtnGhost { color: var(--ink-70); }
+.smallBtnDanger { color: #b91c1c; border-color: rgba(220, 38, 38, .35); }
+.inlineInput,
+.inlineSelect {
+  width: 120px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  border: 1px solid var(--rule);
+  font-size: .78rem;
+}
 .emptyRow {
   text-align: center;
   color: var(--ink-40);

@@ -44,6 +44,10 @@ async function request(url, options = {}) {
   }
 
   if (!res.ok) {
+    if (res.status === 401 && getToken()) {
+      localStorage.removeItem('peerhub_token');
+      window.dispatchEvent(new CustomEvent('peerhub:auth-expired'));
+    }
     throw new Error(data.error || 'Request failed');
   }
   return data;
@@ -119,6 +123,19 @@ export async function apiCreateProject(projectData) {
   });
 }
 
+export async function apiUpdateProject(id, projectData) {
+  return request(`/projects/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(projectData),
+  });
+}
+
+export async function apiDeleteProject(id) {
+  return request(`/projects/${id}`, {
+    method: 'DELETE',
+  });
+}
+
 // Reviews
 export async function apiGetReviews() {
   return request('/reviews');
@@ -170,6 +187,19 @@ export async function apiCreateAssignment(assignmentData) {
   return request('/assignments', {
     method: 'POST',
     body: JSON.stringify(assignmentData),
+  });
+}
+
+export async function apiUpdateAssignment(id, assignmentData) {
+  return request(`/assignments/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(assignmentData),
+  });
+}
+
+export async function apiDeleteAssignment(id) {
+  return request(`/assignments/${id}`, {
+    method: 'DELETE',
   });
 }
 
